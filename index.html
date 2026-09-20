@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ND Tools</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1e293b" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#3b82f6',
+              600: '#2563eb',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- External Libraries -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors duration-200">
+
+  <!-- HEADER / NAVBAR -->
+  <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo App -->
+<a href="#" onclick="showTab('dashboard')" class="flex items-center gap-2.5 group">
+  <div class="w-9 h-9 rounded-xl bg-blue-600/10 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm group-hover:scale-105 transition-transform">
+    ND
+  </div>
+        <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          ND Tools </span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="flex items-center gap-1 sm:gap-2">
+        
+        <!-- Dropdown 1: Dokumen PDF -->
+        <div class="relative group">
+          <button class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
+            <span>Dokumen PDF</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform duration-200"></i>
+          </button>
+          
+          <div class="absolute right-0 sm:left-0 mt-1 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 transform group-hover:translate-y-0 translate-y-1 p-1.5 z-50">
+            <button onclick="showTab('merge-pdf')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+              <div>
+                <div class="font-semibold">Merge PDF</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Gabungkan beberapa file</div>
+              </div>
+            </button>
+            <button onclick="showTab('split-pdf')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="scissors" class="w-4 h-4 text-emerald-500"></i>
+              <div>
+                <div class="font-semibold">Split PDF</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Pisahkan halaman file</div>
+              </div>
+            </button>
+            <button onclick="showTab('compress-pdf')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="file-archive" class="w-4 h-4 text-amber-500"></i>
+              <div>
+                <div class="font-semibold">Compress PDF</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Kecilkan ukuran berkas</div>
+              </div>
+            </button>
+            <button onclick="showTab('img-to-pdf')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="image" class="w-4 h-4 text-pink-500"></i>
+              <div>
+                <div class="font-semibold">Gambar ke PDF</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Ubah JPG/PNG jadi PDF</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdown 2: Utilitas -->
+        <div class="relative group">
+          <button class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="wrench" class="w-4 h-4 text-amber-500"></i>
+            <span>Utilitas</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform duration-200"></i>
+          </button>
+          
+          <div class="absolute right-0 mt-1 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 transform group-hover:translate-y-0 translate-y-1 p-1.5 z-50">
+            <button onclick="showTab('qr-gen')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="qr-code" class="w-4 h-4 text-cyan-500"></i>
+              <div>
+                <div class="font-semibold">QR Generator</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Buat Kode QR dari teks/URL</div>
+              </div>
+            </button>
+            <button onclick="showTab('qr-scan')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="scan" class="w-4 h-4 text-indigo-500"></i>
+              <div>
+                <div class="font-semibold">QR Scanner</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Pindai QR lewat kamera</div>
+              </div>
+            </button>
+            <button onclick="showTab('sticky-notes')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="sticky-note" class="w-4 h-4 text-yellow-500"></i>
+              <div>
+                <div class="font-semibold">Sticky Notes</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Catatan cepat ter-autosave</div>
+              </div>
+            </button>
+            <button onclick="showTab('unit-convert')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors text-left">
+              <i data-lucide="arrow-left-right" class="w-4 h-4 text-rose-500"></i>
+              <div>
+                <div class="font-semibold">Konversi Satuan</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">Panjang, berat, suhu, dll.</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kelompok Utilitas Navbar (Install PWA + Theme Toggle) -->
+<div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700/60">
+  
+  <!-- Tombol Install Aplikasi Offline (Otomatis muncul jika PWA siap) -->
+  <button id="installAppBtn" onclick="installPWA()" class="hidden px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/20">
+    <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+    <span>Install Aplikasi</span>
+  </button>
+
+  <!-- Tombol Theme Toggle (Dark/Light Mode) -->
+  <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center" title="Ubah Tema">
+    <i id="themeIcon" data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+  </button>
+
+</div>
+
+      </nav>
+    </div>
+  </header>
+
+  <!-- KONTEN UTAMA (CONTAINER TAB) -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    
+    <!-- DASHBOARD WELCOME TAB -->
+    <section id="dashboard" class="tab-content">
+      <div class="text-center max-w-3xl mx-auto py-12">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 mb-6">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 100% Aman & Client-Side (Tanpa Upload Server)
+        </span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight mb-4">
+          Kelola PDF & Utilitas Kerja Langsung dari Browser
+        </h1>
+        <p class="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
+          Proses dokumen Anda tanpa batasan. Semua pengolahan dilakukan secara lokal di perangkat Anda sehingga privasi tetap terjaga.
+        </p>
+
+        <!-- Quick Access Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-left mt-8">
+          <div onclick="showTab('merge-pdf')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
+            <i data-lucide="layers" class="w-6 h-6 text-blue-500 mb-2"></i>
+            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Merge PDF</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Gabungkan PDF</p>
+          </div>
+          <div onclick="showTab('split-pdf')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
+            <i data-lucide="scissors" class="w-6 h-6 text-emerald-500 mb-2"></i>
+            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Split PDF</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pisahkan halaman</p>
+          </div>
+          <div onclick="showTab('qr-gen')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
+            <i data-lucide="qr-code" class="w-6 h-6 text-cyan-500 mb-2"></i>
+            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">QR Code</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Buat kode QR</p>
+          </div>
+          <div onclick="showTab('sticky-notes')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
+            <i data-lucide="sticky-note" class="w-6 h-6 text-yellow-500 mb-2"></i>
+            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Sticky Notes</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Catatan lokal</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. MERGE PDF -->
+    <section id="merge-pdf" class="tab-content hidden">
+      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-500/20">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Merge PDF</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Gabungkan beberapa berkas PDF menjadi satu dokumen urut</p>
+          </div>
+        </div>
+
+        <div id="drop-merge" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer transition-all mb-6">
+          <i data-lucide="upload-cloud" class="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3"></i>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Pilih atau seret berkas PDF ke sini</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Dapat memilih lebih dari 1 file sekaligus</p>
+          <input type="file" id="mergeInput" multiple accept="application/pdf" class="hidden" onchange="handleMergeFiles(this.files)" />
+        </div>
+
+        <div id="mergeFileList" class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-1"></div>
+
+        <button onclick="processMergePDF()" id="btnMerge" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i data-lucide="combine" class="w-4 h-4"></i>
+          <span>Gabungkan PDF</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. SPLIT PDF -->
+    <section id="split-pdf" class="tab-content hidden">
+      <div class="max-w-5xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-500/20">
+            <i data-lucide="scissors" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Split PDF (Visual Preview)</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Pilih halaman secara visual dengan mengklik thumbnail di bawah ini</p>
+          </div>
+        </div>
+
+        <div id="drop-split" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer transition-all mb-6">
+          <i data-lucide="file-up" class="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3"></i>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Pilih file PDF yang akan dipisah</p>
+          <input type="file" id="splitInput" accept="application/pdf" class="hidden" onchange="handleSplitFile(this.files[0])" />
+        </div>
+
+        <div id="splitInfo" class="hidden space-y-4 mb-6">
+          <div class="p-4 bg-slate-100 dark:bg-slate-900/60 rounded-xl flex flex-wrap items-center justify-between gap-3 border border-slate-200 dark:border-slate-700/50">
+            <div>
+              <span id="splitFileName" class="text-sm font-semibold text-slate-800 dark:text-slate-200 block truncate max-w-xs">filename.pdf</span>
+              <span id="splitPageCount" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">0 Halaman Terdeteksi</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="selectAllSplitPages(true)" class="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs transition-colors">Pilih Semua</button>
+              <button onclick="selectAllSplitPages(false)" class="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg text-xs transition-colors">Hapus Pilihan</button>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 px-1">
+            <span>Halaman Terpilih: <strong id="selectedPagesCount" class="text-emerald-600 dark:text-emerald-400">0</strong></span>
+            <span>Atau isi manual:</span>
+          </div>
+          <input type="text" id="splitRange" placeholder="Contoh rentang: 1-3, 5" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" oninput="syncRangeToSelection()" />
+
+          <div id="splitThumbnailGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-[480px] overflow-y-auto p-2 bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700/40 rounded-xl"></div>
+        </div>
+
+        <button onclick="processSplitPDF()" id="btnSplit" disabled class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i data-lucide="file-output" class="w-4 h-4"></i>
+          <span>Ekstrak Halaman Terpilih</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. COMPRESS PDF -->
+    <section id="compress-pdf" class="tab-content hidden">
+      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl border border-amber-500/20">
+            <i data-lucide="file-archive" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Compress PDF</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Optimalkan dan kurangi ukuran berkas PDF Anda</p>
+          </div>
+        </div>
+
+        <div id="drop-compress" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 rounded-xl p-8 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer transition-all mb-6">
+          <i data-lucide="archive" class="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3"></i>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Pilih file PDF yang ingin dikompres</p>
+          <input type="file" id="compressInput" accept="application/pdf" class="hidden" onchange="handleCompressFile(this.files[0])" />
+        </div>
+
+        <div id="compressInfo" class="hidden space-y-4 mb-6">
+          <div class="p-3 bg-slate-100 dark:bg-slate-900/60 rounded-lg flex items-center justify-between border border-slate-200 dark:border-slate-700/50">
+            <span id="compressFileName" class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-xs">filename.pdf</span>
+            <span id="compressFileSize" class="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">0 MB</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">Tingkat Kompresi / Kualitas Render Image:</label>
+            <select id="compressQuality" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500">
+              <option value="0.5">Tinggi (Ukuran Terkecil, Kualitas Menengah)</option>
+              <option value="0.75" selected>Seimbang (Rekomendasi)</option>
+              <option value="0.9">Rendah (Kualitas Tinggi, Ukuran Sedikit Berkurang)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="processCompressPDF()" id="btnCompress" disabled class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i data-lucide="minimize-2" class="w-4 h-4"></i>
+          <span>Kompres PDF Sekarang</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. GAMBAR KE PDF -->
+    <section id="img-to-pdf" class="tab-content hidden">
+      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-pink-500/10 text-pink-600 dark:text-pink-400 rounded-xl border border-pink-500/20">
+            <i data-lucide="camera" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Gambar / Kamera ke PDF</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Unggah berkas foto atau ambil foto langsung menggunakan kamera</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div onclick="document.getElementById('img2pdfInput').click()" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-pink-500 rounded-xl p-6 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer transition-all">
+            <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2"></i>
+            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Pilih dari Galeri</p>
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">JPG, PNG (Bisa banyak file)</p>
+            <input type="file" id="img2pdfInput" multiple accept="image/jpeg, image/png" class="hidden" onchange="handleImgToPdfFiles(this.files)" />
+          </div>
+
+          <div onclick="document.getElementById('cameraInput').click()" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-pink-500 rounded-xl p-6 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer transition-all">
+            <i data-lucide="camera" class="w-8 h-8 text-pink-500 mx-auto mb-2"></i>
+            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Ambil Foto Kamera</p>
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Jepret foto dokumen langsung</p>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleImgToPdfFiles(this.files)" />
+          </div>
+        </div>
+
+        <div id="img2pdfPreview" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 max-h-60 overflow-y-auto p-1"></div>
+
+        <button onclick="processImgToPdf()" id="btnImgToPdf" disabled class="w-full py-3 bg-pink-600 hover:bg-pink-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-pink-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i data-lucide="file-check" class="w-4 h-4"></i>
+          <span>Konversi Foto ke PDF</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- UTILITAS 1: QR GENERATOR -->
+    <section id="qr-gen" class="tab-content hidden">
+      <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 rounded-xl border border-cyan-500/20">
+            <i data-lucide="qr-code" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">QR Code Generator</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Buat kode QR kustom dari teks atau tautan URL secara instan</p>
+          </div>
+        </div>
+
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Teks atau URL Target:</label>
+            <input type="text" id="qrInputText" placeholder="Contoh: https://websiteku.com atau Catatan Teks" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors" />
+          </div>
+          <button onclick="generateQRCode()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-600/20">
+            <i data-lucide="wand-2" class="w-4 h-4"></i>
+            <span>Buat QR Code</span>
+          </button>
+        </div>
+
+        <div id="qrContainer" class="hidden text-center pt-4 border-t border-slate-200 dark:border-slate-700/60">
+          <div id="qrResult" class="inline-block p-4 bg-white rounded-2xl shadow-xl border border-slate-200 mb-4"></div>
+          <div>
+            <button onclick="downloadQRCode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5 transition-colors">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Download Gambar QR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UTILITAS 2: QR SCANNER -->
+    <section id="qr-scan" class="tab-content hidden">
+      <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-500/20">
+              <i data-lucide="scan" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">QR Code Scanner</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Pindai kode QR menggunakan kamera perangkat Anda</p>
+            </div>
+          </div>
+          <button onclick="startQRScanner()" class="px-3 py-1.5 bg-indigo-600/10 dark:bg-indigo-600/20 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Muat Ulang Kamera
+          </button>
+        </div>
+
+        <div id="reader" class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900 mb-6 min-h-[280px] flex items-center justify-center"></div>
+
+        <div class="p-4 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <span class="block text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Hasil Pemindaian:</span>
+          <div id="scanResult" class="text-sm text-slate-800 dark:text-slate-300 break-all font-mono italic">
+            Arahkan kamera ke kode QR...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UTILITAS 3: STICKY NOTES -->
+    <!-- UTILITAS 3: STICKY NOTES MULTI-CARD -->
+<section id="sticky-notes" class="tab-content hidden">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Header Sub-Navigasi -->
+    <div>
+      <button onclick="showTab('dashboard')" class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 mb-2">
+        ← Dashboard
+      </button>
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-500/20">
+          <i data-lucide="pencil" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Sticky Notes</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Catatan cepat, tersimpan lokal di browser ini. Tidak sinkron ke perangkat lain.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar: Tombol Tambah, Pencarian, & Counter -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <button onclick="addNewNote()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-700/20 shrink-0">
+          <span class="text-sm font-bold">+</span> Catatan baru
+        </button>
+        <input type="text" id="searchNoteInput" placeholder="Cari catatan..." class="w-full sm:w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm" oninput="renderNotes()" />
+      </div>
+      <div id="notesCount" class="text-xs text-slate-400 font-medium">0 catatan</div>
+    </div>
+
+    <!-- Grid Container Kartu Notes -->
+    <div id="notesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Kartu catatan akan dimasukkan secara dinamis via JavaScript -->
+    </div>
+
+  </div>
+</section>
+
+    <!-- UTILITAS 4: KONVERSI SATUAN DINAMIS -->
+    <section id="unit-convert" class="tab-content hidden">
+      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
+        
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-500/20">
+            <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Konversi Satuan</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Konversi cepat untuk satuan umum lapangan dan kantor.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+          <button onclick="setUnitCategory('length')" id="btnCat-length" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-semibold shrink-0 transition-all">Panjang</button>
+          <button onclick="setUnitCategory('volume')" id="btnCat-volume" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Volume</button>
+          <button onclick="setUnitCategory('weight')" id="btnCat-weight" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Berat</button>
+          <button onclick="setUnitCategory('pressure')" id="btnCat-pressure" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Tekanan</button>
+          <button onclick="setUnitCategory('temp')" id="btnCat-temp" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Suhu</button>
+          <button onclick="setUnitCategory('density')" id="btnCat-density" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Densitas</button>
+          <button onclick="setUnitCategory('flow')" id="btnCat-flow" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all">Debit</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-11 gap-3 items-center mb-6">
+          <div class="sm:col-span-5 space-y-2">
+            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">DARI</label>
+            <input type="number" id="unitFromVal" value="1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 font-mono" oninput="calculateDynamicUnit()" />
+            <select id="unitFromSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer" onchange="calculateDynamicUnit()"></select>
+          </div>
+
+          <div class="sm:col-span-1 flex justify-center pt-4">
+            <button onclick="swapUnits()" class="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 transition-all">
+              <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="sm:col-span-5 space-y-2">
+            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">KE</label>
+            <input type="text" id="unitToVal" readonly class="w-full bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-300 font-mono" />
+            <select id="unitToSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer" onchange="calculateDynamicUnit()"></select>
+          </div>
+        </div>
+
+        <div class="p-6 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-center">
+          <div id="bigUnitResult" class="text-3xl sm:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 font-mono tracking-tight mb-1">0</div>
+          <div id="unitFormulaText" class="text-xs text-slate-500 dark:text-slate-400">1 Unit = 1 Unit</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+<!-- FOOTER -->
+<footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
+  <p>© 2026 ND Tools — Bebas digunakan & diproses 100% lokal di peramban Anda.</p>
+</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
