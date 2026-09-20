@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="dark scroll-smooth">
 <head>
- <meta charset="UTF-8">
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ND Tools</title>
 
@@ -11,22 +11,9 @@
   <!-- Logo untuk Mode Offline / Shortcut HP (iOS & Safari) -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23EFF6FF'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%232563EB' font-family='sans-serif' font-weight='bold' font-size='50'>ND</text></svg>">
 
- <!-- Web App Manifest & Service Worker untuk Fitur Download Offline -->
-<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22ND%20Tools%20Pro%22%2C%22short_name%22%3A%22ND%20Tools%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%232563eb%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%253E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'25'%20fill%3D'%2523EFF6FF'%2F%253E%253Ctext%20x%3D'50%25'%20y%3D'55%25'%20dominant-baseline%3D'central'%20text-anchor%3D'middle'%20fill%3D'%25232563EB'%20font-family%3D'sans-serif'%20font-weight%3D'bold'%20font-size%3D'50'%253END%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      const swCode = `
-        self.addEventListener('install', (e) => self.skipWaiting());
-        self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-        self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-      `;
-      const blob = new Blob([swCode], { type: 'text/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-    });
-  }
-</script> 
+  <!-- Web App Manifest (Untuk Android / Chrome Install App) -->
+  <link rel="manifest" href='data:application/json,{"name":"ND Tools Pro","short_name":"ND Tools","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#2563EB","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%23EFF6FF%22/><text x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 fill=%22%232563EB%22 font-family=%22sans-serif%22 font-weight=%22bold%22 font-size=%2250%22>ND</text></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -157,36 +144,11 @@
         <!-- Kelompok Utilitas Navbar (Install PWA + Theme Toggle) -->
 <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700/60">
   
-<!-- Tombol Install App -->
-<button id="installAppBtn" class="hidden items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-  </svg>
-  Install Offline
-</button>
-
-<script>
-  let deferredPrompt;
-  const installBtn = document.getElementById('installAppBtn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.classList.remove('hidden');
-    installBtn.classList.add('flex');
-  });
-
-  installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBtn.classList.add('hidden');
-      }
-      deferredPrompt = null;
-    }
-  });
-</script>
+  <!-- Tombol Install Aplikasi Offline (Otomatis muncul jika PWA siap) -->
+  <button id="installAppBtn" onclick="installPWA()" class="hidden px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/20">
+    <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+    <span>Install Aplikasi</span>
+  </button>
 
   <!-- Tombol Theme Toggle (Dark/Light Mode) -->
   <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center" title="Ubah Tema">
