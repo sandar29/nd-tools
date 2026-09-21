@@ -637,7 +637,7 @@
 
 <!-- FOOTER -->
 <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
-  <p>© 2026 RF Tools — Bebas digunakan & diproses 100% lokal di peramban Anda.</p>
+  <p>© 2026 SN Tools — Bebas digunakan & diproses 100% lokal di peramban Anda.</p>
 </footer>
 
   <script src="app.js"></script>
@@ -653,7 +653,7 @@
 
     <!-- Judul & Informasi Aplikasi -->
     <div class="space-y-1.5">
-      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Install ND Tools</h3>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Install SN Tools</h3>
       <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
         Pasang aplikasi di perangkat Anda untuk akses cepat tanpa internet & pemrosesan file 100% lokal yang aman.
       </p>
@@ -707,8 +707,8 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js?v=3', { scope: './' })
-          .then((reg) => console.log('[ND Tools] SW Registered:', reg.scope))
-          .catch((err) => console.error('[ND Tools] SW Failed:', err));
+          .then((reg) => console.log('[SN Tools] SW Registered:', reg.scope))
+          .catch((err) => console.error('[SN Tools] SW Failed:', err));
       });
     }
   </script>
