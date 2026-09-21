@@ -484,6 +484,7 @@ function downloadQRCode() {
 }
 
 // ----------------------------------------------------
+// ----------------------------------------------------
 // LOGIKA QR CODE SCANNER (HYBRID & RIWAYAT)
 // ----------------------------------------------------
 let html5QrCodeInstance = null;
@@ -512,7 +513,8 @@ async function startQRScannerManual() {
       }
     );
   } catch (err) {
-    alert("Gagal mengakses kamera: " + err + "\n\nPastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.");
+    // DIGANTI: Menggunakan Modal Kustom
+    showCustomModal('Gagal Mengakses Kamera', 'Pastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.', err, 'camera-off', false);
     if (placeholder) placeholder.classList.remove('hidden');
   }
 }
@@ -529,19 +531,20 @@ async function scanQrFromFile(file) {
     const decodedText = await html5QrCodeInstance.scanFile(file, true);
     handleQrSuccess(decodedText);
   } catch (err) {
-    alert("Kode QR tidak terdeteksi pada gambar ini. Coba gunakan gambar yang lebih jelas.");
+    // DIGANTI: Menggunakan Modal Kustom sebagai pengganti alert bawaan
+    showCustomModal('QR Tidak Terdeteksi', 'Kode QR tidak terdeteksi pada gambar ini. Coba gunakan gambar yang lebih jelas.', 'Gagal Membaca File', 'alert-circle', false);
   }
 }
 
-// Menangani Hasil Pindaian Berhasil & Menyimpan ke Riwayat
+// Penanganan hasil QR Scanner menggunakan Custom Modal
 function handleQrSuccess(text) {
-  // Tambahkan ke riwayat jika belum ada
   if (!scanHistory.includes(text)) {
     scanHistory.unshift(text);
     renderScanHistory();
   }
 
-  alert("Hasil QR Code:\n" + text);
+  // Tampilkan Modal Elegan tanpa alert() browser
+  showCustomModal('Hasil QR Code', text, 'Kode QR berhasil dipindai', 'qr-code', true);
 }
 
 // Render Tampilan Riwayat Pindaian
@@ -561,13 +564,22 @@ function renderScanHistory() {
   scanHistory.forEach((item, index) => {
     const itemEl = document.createElement('div');
     itemEl.className = 'p-2 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 break-all font-mono text-[11px] flex justify-between items-start gap-2';
+    
+    // DIGANTI: Fungsi salin menggunakan modal kustom atau pesan toast tanpa alert()
     itemEl.innerHTML = `
       <span>${item}</span>
-      <button onclick="navigator.clipboard.writeText('${item}'); alert('Berhasil disalin!');" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-sans shrink-0 hover:underline">Salin</button>
+      <button onclick="copyToClipboard('${item}')" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-sans shrink-0 hover:underline">Salin</button>
     `;
     container.appendChild(itemEl);
   });
 }
+
+// Fungsi tambahan untuk menyalin riwayat dari daftar
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  showCustomModal('Teks Disalin', text, 'Teks berhasil disalin ke clipboard', 'check', false);
+}
+
 // ----------------------------------------------------
 // LOGIKA STICKY NOTES MULTI-CARD (LOCALSTORAGE)
 // ----------------------------------------------------
