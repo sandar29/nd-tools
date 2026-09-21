@@ -395,37 +395,74 @@
       </div>
     </section>
 
-    <!-- UTILITAS 2: QR SCANNER -->
-    <section id="qr-scan" class="tab-content hidden">
-      <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl dark:shadow-none transition-colors">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
-            <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-500/20">
-              <i data-lucide="scan" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-slate-900 dark:text-white">QR Code Scanner</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Pindai kode QR menggunakan kamera perangkat Anda</p>
-            </div>
-          </div>
-          <button onclick="startQRScanner()" class="px-3 py-1.5 bg-indigo-600/10 dark:bg-indigo-600/20 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Muat Ulang Kamera
-          </button>
+    <!-- UTILITAS 2: QR CODE SCANNER (HYBRID: KAMERA + UNGGAH GAMBAR) -->
+<section id="qr-scan" class="tab-content hidden">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Sub Header Navigasi -->
+    <div>
+      <button onclick="showTab('dashboard')" class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 mb-2">
+        ← Dashboard
+      </button>
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-500/20">
+          <i data-lucide="scan" class="w-6 h-6"></i>
         </div>
-
-        <div id="reader" class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900 mb-6 min-h-[280px] flex items-center justify-center"></div>
-
-        <div class="p-4 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700/60">
-          <span class="block text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Hasil Pemindaian:</span>
-          <div id="scanResult" class="text-sm text-slate-800 dark:text-slate-300 break-all font-mono italic">
-            Arahkan kamera ke kode QR...
-          </div>
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">QR Code Scanner</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Pindai lewat kamera atau unggah gambar. Kamera butuh izin browser dan koneksi HTTPS/localhost.</p>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- UTILITAS 3: STICKY NOTES -->
-    <!-- UTILITAS 3: STICKY NOTES MULTI-CARD -->
+    <!-- Main Content Layout (2 Kolom) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Panel Kiri: Viewport Kamera / Placeholder Video -->
+      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-4 min-h-[360px] sm:min-h-[420px] flex flex-col items-center justify-center relative overflow-hidden shadow-xl">
+        <div id="reader" class="w-full h-full min-h-[320px] rounded-xl overflow-hidden"></div>
+        
+        <!-- Placeholder saat kamera belum aktif -->
+        <div id="cameraPlaceholder" class="text-center p-6 space-y-2">
+          <i data-lucide="camera-off" class="w-10 h-10 text-slate-600 mx-auto mb-2"></i>
+          <h4 class="text-sm font-semibold text-slate-200">Kamera belum aktif</h4>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">Klik "Mulai Kamera" atau unggah gambar QR di panel kanan.</p>
+        </div>
+      </div>
+
+      <!-- Panel Kanan: Kontrol & Unggah & Riwayat -->
+      <div class="lg:col-span-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between space-y-6 shadow-xl dark:shadow-none">
+        
+        <div class="space-y-6">
+          <!-- Tombol Mulai Kamera -->
+          <button id="btnStartCamera" onclick="startQRScannerManual()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-700/20">
+            <i data-lucide="camera" class="w-4 h-4"></i>
+            <span>Mulai Kamera</span>
+          </button>
+
+          <!-- Input Unggah Gambar -->
+          <div class="space-y-2">
+            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ATAU UNGGAH GAMBAR</label>
+            <input type="file" id="qrFileInput" accept="image/*" class="w-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-300" onchange="scanQrFromFile(this.files[0])" />
+          </div>
+
+          <!-- Riwayat Pindaian -->
+          <div class="space-y-2">
+            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">RIWAYAT PINDAIAN (BROWSER INI)</label>
+            <div id="scanHistoryList" class="p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-400 dark:text-slate-500 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2">
+              Belum ada riwayat.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+    
+        <!-- UTILITAS 3: STICKY NOTES MULTI-CARD -->
 <section id="sticky-notes" class="tab-content hidden">
   <div class="max-w-6xl mx-auto space-y-6">
     
