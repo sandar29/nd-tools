@@ -636,6 +636,37 @@
 
   <script src="app.js"></script>
 
+<!-- CUSTOM PWA INSTALL MODAL -->
+<div id="pwaInstallModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
+  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-transform duration-200 text-center space-y-5" id="pwaInstallCard">
+    
+    <!-- Logo ND Tools Bulat/Rounded Presisi -->
+    <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto shadow-lg shadow-blue-600/30 border-2 border-blue-400/30">
+      ND
+    </div>
+
+    <!-- Judul & Informasi Aplikasi -->
+    <div class="space-y-1.5">
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Install ND Tools</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Pasang aplikasi di perangkat Anda untuk akses cepat tanpa internet & pemrosesan file 100% lokal yang aman.
+      </p>
+    </div>
+
+    <!-- Tombol Aksi -->
+    <div class="grid grid-cols-2 gap-3 pt-2">
+      <button onclick="closePwaModal()" class="py-2.5 px-4 bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold transition-colors">
+        Nanti Saja
+      </button>
+      <button onclick="triggerPwaInstall()" class="py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-blue-600/20 flex items-center justify-center gap-1.5">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>Install</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
   <!-- CUSTOM MODAL POP-UP -->
 <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
   <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="modalCard">
