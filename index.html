@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="id" class="dark scroll-smooth">
 <head>
-  <link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#0f172a" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ND Tools</title>
 
-  <!-- Favicon untuk Tab Browser -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23EFF6FF'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%232563EB' font-family='sans-serif' font-weight='bold' font-size='50'>ND</text></svg>">
+  <!-- Web App Manifest (Mengarah ke file manifest.json fisik) -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
 
-  <!-- Logo untuk Mode Offline / Shortcut HP (iOS & Safari) -->
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23EFF6FF'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='%232563EB' font-family='sans-serif' font-weight='bold' font-size='50'>ND</text></svg>">
+  <!-- Favicon untuk Tab Browser & Apple Home Screen -->
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
 
-  <!-- Web App Manifest (Untuk Android / Chrome Install App) -->
-  <link rel="manifest" href='data:application/json,{"name":"ND Tools","short_name":"ND Tools","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#2563EB","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%23EFF6FF%22/><text x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 fill=%22%232563EB%22 font-family=%22sans-serif%22 font-weight=%22bold%22 font-size=%2250%22>ND</text></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
-  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -47,7 +44,7 @@
 
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors duration-200">
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors duration-200">
 
   <!-- HEADER / NAVBAR -->
   <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
@@ -669,5 +666,14 @@
     </div>
   </div>
 </div>
+    <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=3', { scope: './' })
+          .then((reg) => console.log('[ND Tools] SW Registered:', reg.scope))
+          .catch((err) => console.error('[ND Tools] SW Failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>
