@@ -1,6 +1,6 @@
 {
-  "name": "PDF & Utility Studio Pro",
-  "short_name": "PDF Studio",
+  "name": "ND Tools",
+  "short_name": "ND Tools",
   "description": "Aplikasi Pengolah PDF & Utilitas Serbaguna Client-Side & Offline Ready",
   "start_url": "./index.html",
   "display": "standalone",
