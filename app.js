@@ -876,8 +876,8 @@ let deferredPrompt = null;
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js?v=4', { scope: './' })
-      .then((reg) => console.log('[ND Tools] SW Registered:', reg.scope))
-      .catch((err) => console.error('[ND Tools] SW Failed:', err));
+      .then((reg) => console.log('[SN Tools] SW Registered:', reg.scope))
+      .catch((err) => console.error('[SN Tools] SW Failed:', err));
   });
 }
 
@@ -885,7 +885,7 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  console.log('[ND Tools] Event PWA install siap.');
+  console.log('[SN Tools] Event PWA install siap.');
 });
 
 // Dipanggil saat tombol "Install Aplikasi" di Navbar diklik
@@ -932,7 +932,7 @@ function triggerPwaInstall() {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('[ND Tools] Pengguna menyetujui instalasi.');
+        console.log('[SN Tools] Pengguna menyetujui instalasi.');
       }
       deferredPrompt = null;
     });
@@ -950,7 +950,7 @@ function triggerPwaInstall() {
     } else {
       showCustomModal(
         'Install di Laptop/PC',
-        'Perhatikan bagian kanan atas Address Bar (URL browser Anda), lalu klik ikon Download/Komputer kecil di sana untuk menginstal ND Tools.',
+        'Perhatikan bagian kanan atas Address Bar (URL browser Anda), lalu klik ikon Download/Komputer kecil di sana untuk menginstal SN Tools.',
         'Petunjuk Instalasi',
         'download-cloud',
         false
@@ -961,5 +961,5 @@ function triggerPwaInstall() {
 
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  showCustomModal('Instalasi Selesai', 'ND Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
+  showCustomModal('Instalasi Selesai', 'SN Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
 });
