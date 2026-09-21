@@ -868,39 +868,60 @@ function swapUnits() {
 }
 
 // ----------------------------------------------------
-// 12. LOGIKA PWA & OFFLINE INSTALL
+// 12. LOGIKA PWA & OFFLINE INSTALL (ND TOOLS)
 // ----------------------------------------------------
 let deferredPrompt = null;
 
+// Registrasi Service Worker khusus scope sub-folder GitHub Pages
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then((reg) => {
+        console.log('[ND Tools] Service Worker registered with scope:', reg.scope);
+      })
+      .catch((err) => {
+        console.error('[ND Tools] Service Worker registration failed:', err);
+      });
+  });
+}
+
+// Tangkap event pemicu instalasi PWA dari browser
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  console.log('[ND Tools] Event beforeinstallprompt berhasil ditangkap.');
+  console.log('[ND Tools] PWA Siap Diinstall!');
+  
+  const installBtn = document.getElementById('installAppBtn');
+  if (installBtn) {
+    installBtn.classList.add('ring-2', 'ring-blue-400');
+  }
 });
 
+// Fungsi saat tombol "Install Aplikasi" diklik
 function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('[ND Tools] Pengguna menyetujui instalasi aplikasi.');
+        console.log('[ND Tools] User menyetujui instalasi PWA.');
       }
       deferredPrompt = null;
     });
   } else {
+    // Jika diklik sebelum browser siap, tampilkan petunjuk pemasangan kustom
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       showCustomModal(
         'Install ND Tools di HP',
-        'Untuk menginstal aplikasi di perangkat seluler:\n\n1. Ketuk ikon Menu (titik tiga di kanan atas Chrome, atau tombol Share di Safari).\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".',
+        'Untuk menginstal aplikasi di HP:\n\n1. Ketuk menu titik tiga (Chrome) atau tombol Share (Safari).\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".',
         'Petunjuk Instalasi',
         'download-cloud',
         false
       );
     } else {
       showCustomModal(
-        'Install ND Tools di Laptop/PC',
-        'Untuk memasang aplikasi ini di Desktop:\n\n1. Perhatikan bagian kanan atas Address Bar (bilah alamat URL) browser Anda.\n2. Klik ikon Download/Komputer dengan panah bawah (Install ND Tools).\n3. Klik "Install".',
+        'Install ND Tools di PC/Laptop',
+        'Untuk memasang ND Tools di Laptop/PC:\n\nPerhatikan bagian kanan atas Address Bar (URL browser Anda), lalu klik ikon Komputer/Download kecil untuk memasang aplikasi.',
         'Petunjuk Instalasi',
         'download-cloud',
         false
