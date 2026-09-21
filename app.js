@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// LOGIKA LIGHT / DARK MODE
+// 1. LOGIKA LIGHT / DARK MODE
 // ----------------------------------------------------
 function initTheme() {
   const savedTheme = localStorage.getItem('theme');
@@ -37,21 +37,89 @@ function updateThemeIcon(isDark) {
   }
 }
 
-// Jalankan saat DOM siap
-document.addEventListener("DOMContentLoaded", () => {
-  initTheme();
-});
+// ----------------------------------------------------
+// 2. LOGIKA CUSTOM MODAL NOTIFIKASI
+// ----------------------------------------------------
+let currentModalText = '';
+
+function showCustomModal(title, text, subtitle = 'Informasi', iconName = 'check-circle-2', showCopy = true) {
+  currentModalText = text;
+
+  const titleEl = document.getElementById('modalTitle');
+  const subtitleEl = document.getElementById('modalSubtitle');
+  const bodyEl = document.getElementById('modalBody');
+
+  if (titleEl) titleEl.innerText = title;
+  if (subtitleEl) subtitleEl.innerText = subtitle;
+  if (bodyEl) bodyEl.innerText = text;
+
+  const copyBtn = document.getElementById('btnCopyModal');
+  if (copyBtn) {
+    copyBtn.style.display = showCopy ? 'flex' : 'none';
+  }
+
+  const iconEl = document.getElementById('modalIcon');
+  if (iconEl) {
+    iconEl.setAttribute('data-lucide', iconName);
+    if (window.lucide) lucide.createIcons();
+  }
+
+  const modal = document.getElementById('customModal');
+  const card = document.getElementById('modalCard');
+
+  if (modal && card) {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      card.classList.remove('scale-95');
+      card.classList.add('scale-100');
+    }, 10);
+  }
+}
+
+function closeCustomModal() {
+  const modal = document.getElementById('customModal');
+  const card = document.getElementById('modalCard');
+
+  if (modal && card) {
+    modal.classList.add('opacity-0');
+    card.classList.remove('scale-100');
+    card.classList.add('scale-95');
+
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 200);
+  }
+}
+
+function copyModalContent() {
+  if (currentModalText) {
+    navigator.clipboard.writeText(currentModalText);
+    const copyBtn = document.getElementById('btnCopyModal');
+    if (copyBtn) {
+      copyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Tersalin!</span>`;
+      if (window.lucide) lucide.createIcons();
+
+      setTimeout(() => {
+        copyBtn.innerHTML = `<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Salin Teks</span>`;
+        if (window.lucide) lucide.createIcons();
+      }, 1500);
+    }
+  }
+}
 
 // ----------------------------------------------------
-// 1. INISIALISASI & EVENT LISTENERS UTAMA
+// 3. INISIALISASI & EVENT LISTENERS UTAMA
 // ----------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Inisialisasi Ikon Lucide
+  initTheme();
+  loadNotes();
+
   if (window.lucide) {
     lucide.createIcons();
   }
 
-  // Auto-connect semua Dropzone/Click area ke Input File masing-masing
+  // Auto-connect Dropzones ke Input File
   const dropzones = [
     { area: 'drop-merge', input: 'mergeInput' },
     { area: 'drop-split', input: 'splitInput' },
@@ -68,20 +136,22 @@ document.addEventListener("DOMContentLoaded", () => {
       areaEl.onclick = () => inputEl.click();
     }
   });
+
+  if (document.getElementById('unitFromSelect')) {
+    setUnitCategory('length');
+  }
 });
 
-// Fungsi Switcher Tab Navigasi
+// Switcher Tab Navigasi
 function showTab(tabId) {
   document.querySelectorAll(".tab-content").forEach((el) => {
     el.classList.add("hidden");
   });
-
   const target = document.getElementById(tabId);
   if (target) {
     target.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-
   if (window.lucide) {
     lucide.createIcons();
   }
@@ -97,7 +167,7 @@ function downloadFile(data, filename, type) {
 }
 
 // ----------------------------------------------------
-// 2. LOGIKA MERGE PDF
+// 4. LOGIKA MERGE PDF
 // ----------------------------------------------------
 let mergeFiles = [];
 
@@ -117,13 +187,13 @@ function renderMergeList() {
 
   mergeFiles.forEach((file, index) => {
     const item = document.createElement('div');
-    item.className = 'flex items-center justify-between p-3 bg-slate-900/80 rounded-xl border border-slate-700/50 text-xs text-slate-300';
+    item.className = 'flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700/50 text-xs text-slate-800 dark:text-slate-300';
     item.innerHTML = `
       <div class="flex items-center gap-2 truncate">
-        <i data-lucide="file" class="w-4 h-4 text-blue-400 shrink-0"></i>
+        <i data-lucide="file" class="w-4 h-4 text-blue-500 shrink-0"></i>
         <span class="truncate">${file.name}</span>
       </div>
-      <button onclick="removeMergeFile(${index})" class="text-rose-400 hover:text-rose-300 p-1">
+      <button onclick="removeMergeFile(${index})" class="text-rose-500 hover:text-rose-400 p-1">
         <i data-lucide="trash-2" class="w-4 h-4"></i>
       </button>
     `;
@@ -139,8 +209,8 @@ function removeMergeFile(index) {
 }
 
 async function processMergePDF() {
-  if (mergeFiles.length < 2) return alert('Silakan pilih minimal 2 file PDF untuk digabungkan!');
-
+  if (mergeFiles.length < 2) return showCustomModal('Peringatan', 'Silakan pilih minimal 2 file PDF untuk digabungkan!', 'Aksi Membutuhkan Berkas', 'alert-circle', false);
+  
   try {
     const { PDFDocument } = PDFLib;
     const mergedPdf = await PDFDocument.create();
@@ -155,12 +225,12 @@ async function processMergePDF() {
     const pdfBytes = await mergedPdf.save();
     downloadFile(pdfBytes, 'Merged_Document.pdf', 'application/pdf');
   } catch (err) {
-    alert('Gagal menggabungkan PDF: ' + err.message);
+    showCustomModal('Gagal Menggabungkan PDF', err.message, 'Kesalahan Sistem', 'alert-circle', false);
   }
 }
 
 // ----------------------------------------------------
-// 3. LOGIKA SPLIT PDF (PREVIEW & THUMBNAIL)
+// 5. LOGIKA SPLIT PDF (PREVIEW & THUMBNAIL)
 // ----------------------------------------------------
 let selectedSplitFile = null;
 let selectedSplitPages = new Set();
@@ -184,7 +254,7 @@ async function handleSplitFile(file) {
 
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    
+
     document.getElementById('splitPageCount').innerText = `${pdf.numPages} Halaman Terdeteksi`;
     container.innerHTML = '';
 
@@ -192,27 +262,23 @@ async function handleSplitFile(file) {
       const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 0.5 });
 
-      // Buat Card Element
       const card = document.createElement('div');
-      card.className = `relative cursor-pointer border-2 border-slate-700/80 hover:border-emerald-500/80 rounded-lg p-2 bg-slate-900 flex flex-col items-center transition-all select-none`;
+      card.className = `relative cursor-pointer border-2 border-slate-300 dark:border-slate-700/80 hover:border-emerald-500 rounded-lg p-2 bg-white dark:bg-slate-900 flex flex-col items-center transition-all select-none`;
       card.dataset.page = i;
 
-      // Buat Canvas
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;
-      canvas.className = 'rounded border border-slate-700 block max-w-full h-auto mb-2';
+      canvas.className = 'rounded border border-slate-200 dark:border-slate-700 block max-w-full h-auto mb-2';
 
-      // Render PDF ke Canvas (Await hingga selesai)
       const renderTask = page.render({ canvasContext: ctx, viewport: viewport });
       await renderTask.promise;
 
-      // Tempelkan Canvas yang SUDAH selesai di-render ke Card
       card.appendChild(canvas);
-      
+
       const label = document.createElement('span');
-      label.className = 'text-[11px] font-semibold text-slate-400 mt-1';
+      label.className = 'text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-1';
       label.innerText = `Hal ${i}`;
       card.appendChild(label);
 
@@ -221,7 +287,7 @@ async function handleSplitFile(file) {
     }
   } catch (err) {
     console.error(err);
-    container.innerHTML = `<div class="col-span-full py-4 text-center text-rose-400 text-xs">Gagal memuat thumbnail: ${err.message}</div>`;
+    container.innerHTML = `<div class="col-span-full py-4 text-center text-rose-500 text-xs">Gagal memuat thumbnail: ${err.message}</div>`;
   }
 }
 
@@ -229,11 +295,11 @@ function togglePageSelection(pageNum, cardElement) {
   if (selectedSplitPages.has(pageNum)) {
     selectedSplitPages.delete(pageNum);
     cardElement.classList.remove('border-emerald-500', 'bg-emerald-500/10');
-    cardElement.classList.add('border-slate-700/80', 'bg-slate-900');
+    cardElement.classList.add('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
   } else {
     selectedSplitPages.add(pageNum);
     cardElement.classList.add('border-emerald-500', 'bg-emerald-500/10');
-    cardElement.classList.remove('border-slate-700/80', 'bg-slate-900');
+    cardElement.classList.remove('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
   }
   updateSplitSelectionUI();
 }
@@ -245,11 +311,11 @@ function selectAllSplitPages(selectAll) {
     if (selectAll) {
       selectedSplitPages.add(pageNum);
       card.classList.add('border-emerald-500', 'bg-emerald-500/10');
-      card.classList.remove('border-slate-700/80', 'bg-slate-900');
+      card.classList.remove('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
     } else {
       selectedSplitPages.delete(pageNum);
       card.classList.remove('border-emerald-500', 'bg-emerald-500/10');
-      card.classList.add('border-slate-700/80', 'bg-slate-900');
+      card.classList.add('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
     }
   });
   updateSplitSelectionUI();
@@ -286,10 +352,10 @@ function syncRangeToSelection() {
     const pageNum = parseInt(card.dataset.page);
     if (selectedSplitPages.has(pageNum)) {
       card.classList.add('border-emerald-500', 'bg-emerald-500/10');
-      card.classList.remove('border-slate-700/80', 'bg-slate-900');
+      card.classList.remove('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
     } else {
       card.classList.remove('border-emerald-500', 'bg-emerald-500/10');
-      card.classList.add('border-slate-700/80', 'bg-slate-900');
+      card.classList.add('border-slate-300', 'dark:border-slate-700/80', 'bg-white', 'dark:bg-slate-900');
     }
   });
   document.getElementById('selectedPagesCount').innerText = selectedSplitPages.size;
@@ -297,7 +363,7 @@ function syncRangeToSelection() {
 
 async function processSplitPDF() {
   if (!selectedSplitFile || selectedSplitPages.size === 0) {
-    return alert('Pilih minimal 1 halaman PDF untuk diekstrak!');
+    return showCustomModal('Peringatan', 'Pilih minimal 1 halaman PDF untuk diekstrak!', 'Halaman Belum Dipilih', 'alert-circle', false);
   }
 
   try {
@@ -312,18 +378,19 @@ async function processSplitPDF() {
     const pdfBytes = await newPdf.save();
     downloadFile(pdfBytes, `Split_${selectedSplitFile.name}`, 'application/pdf');
   } catch (err) {
-    alert('Gagal memisahkan PDF: ' + err.message);
+    showCustomModal('Gagal Pemisahan PDF', err.message, 'Kesalahan Proses', 'alert-circle', false);
   }
 }
 
 // ----------------------------------------------------
-// 4. LOGIKA COMPRESS PDF
+// 6. LOGIKA COMPRESS PDF
 // ----------------------------------------------------
 let selectedCompressFile = null;
 
 function handleCompressFile(file) {
   if (!file) return;
   selectedCompressFile = file;
+
   document.getElementById('compressFileName').innerText = file.name;
   document.getElementById('compressFileSize').innerText = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
   document.getElementById('compressInfo').classList.remove('hidden');
@@ -334,7 +401,7 @@ async function processCompressPDF() {
   if (!selectedCompressFile) return;
   const quality = parseFloat(document.getElementById('compressQuality').value);
 
-  alert('Proses kompresi sedang berjalan di browser Anda, mohon tunggu sebentar...');
+  showCustomModal('Proses Kompresi Berjalan', 'Mohon tunggu sebentar, sistem sedang mengoptimalkan gambar di dalam dokumen...', 'Harap Tunggu', 'minimize-2', false);
 
   try {
     const arrayBuffer = await selectedCompressFile.arrayBuffer();
@@ -358,19 +425,21 @@ async function processCompressPDF() {
       const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
       const imgBytes = await fetch(imgDataUrl).then(res => res.arrayBuffer());
       const image = await newPdf.embedJpg(imgBytes);
+
       const newPage = newPdf.addPage([viewport.width, viewport.height]);
       newPage.drawImage(image, { x: 0, y: 0, width: viewport.width, height: viewport.height });
     }
 
     const pdfBytes = await newPdf.save();
+    closeCustomModal();
     downloadFile(pdfBytes, `Compressed_${selectedCompressFile.name}`, 'application/pdf');
   } catch (err) {
-    alert('Gagal mengompres PDF: ' + err.message);
+    showCustomModal('Gagal Mengompres PDF', err.message, 'Kesalahan Proses', 'alert-circle', false);
   }
 }
 
 // ----------------------------------------------------
-// 2. LOGIKA GAMBAR KE PDF
+// 7. LOGIKA GAMBAR KE PDF
 // ----------------------------------------------------
 let selectedImages = [];
 
@@ -387,16 +456,17 @@ function renderImgPreview() {
   const container = document.getElementById('img2pdfPreview');
   const btn = document.getElementById('btnImgToPdf');
   if (!container) return;
+
   container.innerHTML = '';
 
   selectedImages.forEach((file, index) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const div = document.createElement('div');
-      div.className = 'relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-900 aspect-square';
+      div.className = 'relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 aspect-square';
       div.innerHTML = `
         <img src="${e.target.result}" class="w-full h-full object-cover" />
-        <button onclick="removeImg(${index})" class="absolute top-1 right-1 bg-rose-600/80 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onclick="removeImg(${index})" class="absolute top-1 right-1 bg-rose-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
           <i data-lucide="x" class="w-3 h-3"></i>
         </button>
       `;
@@ -428,7 +498,6 @@ async function processImgToPdf() {
       } else {
         image = await pdfDoc.embedJpg(buffer);
       }
-
       const page = pdfDoc.addPage([image.width, image.height]);
       page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
     }
@@ -436,22 +505,22 @@ async function processImgToPdf() {
     const pdfBytes = await pdfDoc.save();
     downloadFile(pdfBytes, 'Images_Converted.pdf', 'application/pdf');
   } catch (err) {
-    alert('Gagal mengonversi Gambar ke PDF: ' + err.message);
+    showCustomModal('Gagal Konversi Gambar', err.message, 'Kesalahan Proses', 'alert-circle', false);
   }
 }
 
 // ----------------------------------------------------
-// LOGIKA UTILITAS LENGKAP
+// 8. LOGIKA QR CODE GENERATOR
 // ----------------------------------------------------
-
-// 1. QR CODE GENERATOR & DOWNLOAD
 function generateQRCode() {
   const text = document.getElementById('qrInputText').value.trim();
   const container = document.getElementById('qrContainer');
   const resultDiv = document.getElementById('qrResult');
-  
+
+  if (!resultDiv) return;
   resultDiv.innerHTML = '';
-  if (!text) return alert('Masukkan teks atau URL terlebih dahulu!');
+
+  if (!text) return showCustomModal('Peringatan', 'Masukkan teks atau URL terlebih dahulu!', 'Input Kosong', 'alert-circle', false);
 
   new QRCode(resultDiv, {
     text: text,
@@ -462,14 +531,14 @@ function generateQRCode() {
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  container.classList.remove('hidden');
+  if (container) container.classList.remove('hidden');
 }
 
 function downloadQRCode() {
   const img = document.querySelector('#qrResult img');
   const canvas = document.querySelector('#qrResult canvas');
-  
   let url = '';
+
   if (img && img.src) url = img.src;
   else if (canvas) url = canvas.toDataURL("image/png");
 
@@ -479,26 +548,23 @@ function downloadQRCode() {
     link.download = 'QRCode_Generated.png';
     link.click();
   } else {
-    alert('QR Code belum siap didownload.');
+    showCustomModal('Gagal Download', 'Kode QR belum siap untuk diunduh.', 'Kesalahan', 'alert-circle', false);
   }
 }
 
 // ----------------------------------------------------
-// ----------------------------------------------------
-// LOGIKA QR CODE SCANNER (HYBRID & RIWAYAT)
+// 9. LOGIKA QR CODE SCANNER (HYBRID & RIWAYAT)
 // ----------------------------------------------------
 let html5QrCodeInstance = null;
 let scanHistory = [];
 
-// Memulai Scanner Kamera secara Manual
 async function startQRScannerManual() {
   const placeholder = document.getElementById('cameraPlaceholder');
-  
+
   if (!html5QrCodeInstance) {
     html5QrCodeInstance = new Html5Qrcode("reader");
   }
 
-  // Sembunyikan placeholder
   if (placeholder) placeholder.classList.add('hidden');
 
   try {
@@ -509,17 +575,15 @@ async function startQRScannerManual() {
         handleQrSuccess(decodedText);
       },
       (errorMessage) => {
-        // Abaikan error render per frame
+        // Abaikan error per frame
       }
     );
   } catch (err) {
-    // DIGANTI: Menggunakan Modal Kustom
-    showCustomModal('Gagal Mengakses Kamera', 'Pastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.', err, 'camera-off', false);
+    showCustomModal('Gagal Mengakses Kamera', 'Pastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.', err.message || err, 'camera-off', false);
     if (placeholder) placeholder.classList.remove('hidden');
   }
 }
 
-// Memindai QR Code dari File Gambar yang Diunggah
 async function scanQrFromFile(file) {
   if (!file) return;
 
@@ -531,23 +595,18 @@ async function scanQrFromFile(file) {
     const decodedText = await html5QrCodeInstance.scanFile(file, true);
     handleQrSuccess(decodedText);
   } catch (err) {
-    // DIGANTI: Menggunakan Modal Kustom sebagai pengganti alert bawaan
     showCustomModal('QR Tidak Terdeteksi', 'Kode QR tidak terdeteksi pada gambar ini. Coba gunakan gambar yang lebih jelas.', 'Gagal Membaca File', 'alert-circle', false);
   }
 }
 
-// Penanganan hasil QR Scanner menggunakan Custom Modal
 function handleQrSuccess(text) {
   if (!scanHistory.includes(text)) {
     scanHistory.unshift(text);
     renderScanHistory();
   }
-
-  // Tampilkan Modal Elegan tanpa alert() browser
   showCustomModal('Hasil QR Code', text, 'Kode QR berhasil dipindai', 'qr-code', true);
 }
 
-// Render Tampilan Riwayat Pindaian
 function renderScanHistory() {
   const container = document.getElementById('scanHistoryList');
   if (!container) return;
@@ -561,11 +620,9 @@ function renderScanHistory() {
   container.className = 'p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs text-slate-800 dark:text-slate-200 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2';
   container.innerHTML = '';
 
-  scanHistory.forEach((item, index) => {
+  scanHistory.forEach((item) => {
     const itemEl = document.createElement('div');
     itemEl.className = 'p-2 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 break-all font-mono text-[11px] flex justify-between items-start gap-2';
-    
-    // DIGANTI: Fungsi salin menggunakan modal kustom atau pesan toast tanpa alert()
     itemEl.innerHTML = `
       <span>${item}</span>
       <button onclick="copyToClipboard('${item}')" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-sans shrink-0 hover:underline">Salin</button>
@@ -574,18 +631,16 @@ function renderScanHistory() {
   });
 }
 
-// Fungsi tambahan untuk menyalin riwayat dari daftar
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text);
   showCustomModal('Teks Disalin', text, 'Teks berhasil disalin ke clipboard', 'check', false);
 }
 
 // ----------------------------------------------------
-// LOGIKA STICKY NOTES MULTI-CARD (LOCALSTORAGE)
+// 10. LOGIKA STICKY NOTES MULTI-CARD
 // ----------------------------------------------------
 let notesData = [];
 
-// Pilihan Warna Pastel Kartu Sticky Note
 const noteColors = [
   { bg: 'bg-amber-100/90 dark:bg-amber-100/90 text-slate-900', border: 'border-amber-200', hex: '#fef3c7' },
   { bg: 'bg-blue-100/90 dark:bg-blue-100/90 text-slate-900', border: 'border-blue-200', hex: '#dbeafe' },
@@ -603,13 +658,7 @@ function loadNotes() {
       notesData = [];
     }
   } else {
-    // Default 1 Catatan Awal jika Kosong
-    notesData = [{
-      id: Date.now(),
-      content: 'Tulis catatan...',
-      colorIndex: 0,
-      date: getFormattedDate()
-    }];
+    notesData = [{ id: Date.now(), content: 'Tulis catatan...', colorIndex: 0, date: getFormattedDate() }];
     saveNotesToStorage();
   }
   renderNotes();
@@ -637,12 +686,7 @@ function getFormattedDate() {
 }
 
 function addNewNote() {
-  const newNote = {
-    id: Date.now(),
-    content: '',
-    colorIndex: 0,
-    date: getFormattedDate()
-  };
+  const newNote = { id: Date.now(), content: '', colorIndex: 0, date: getFormattedDate() };
   notesData.unshift(newNote);
   saveNotesToStorage();
   renderNotes();
@@ -682,11 +726,9 @@ function renderNotes() {
 
   filteredNotes.forEach(note => {
     const color = noteColors[note.colorIndex] || noteColors[0];
-
     const card = document.createElement('div');
     card.className = `${color.bg} p-4 rounded-2xl shadow-sm border ${color.border} flex flex-col justify-between min-h-[180px] transition-all relative group text-slate-900`;
 
-    // Baris Bulatan Pilihan Warna & Tombol Hapus
     let colorDotsHTML = '';
     noteColors.forEach((c, idx) => {
       const isSelected = note.colorIndex === idx;
@@ -709,90 +751,23 @@ function renderNotes() {
       </div>
       <div class="text-[10px] text-slate-500 mt-2 font-medium">${note.date}</div>
     `;
-
     container.appendChild(card);
   });
 
   renderNotesCount();
 }
 
-// Inisialisasi Catatan saat DOM Siap
-document.addEventListener("DOMContentLoaded", () => {
-  loadNotes();
-});
-
-// 4. KONVERSI SATUAN
-// Switcher Tab Kategori Satuan
-// Data Satuan Lengkap & Faktor Konversi
+// ----------------------------------------------------
+// 11. KONVERSI SATUAN
+// ----------------------------------------------------
 const unitData = {
-  length: {
-    label: "Panjang",
-    units: {
-      m: { name: "Meter (m)", factor: 1 },
-      km: { name: "Kilometer (km)", factor: 1000 },
-      cm: { name: "Centimeter (cm)", factor: 0.01 },
-      mm: { name: "Millimeter (mm)", factor: 0.001 },
-      ft: { name: "Feet (ft)", factor: 0.3048 },
-      inch: { name: "Inch (in)", factor: 0.0254 },
-      mile: { name: "Mile (mi)", factor: 1609.34 }
-    }
-  },
-  volume: {
-    label: "Volume",
-    units: {
-      l: { name: "Liter (L)", factor: 1 },
-      ml: { name: "Milliliter (mL)", factor: 0.001 },
-      m3: { name: "Meter Kubik (m³)", factor: 1000 },
-      gal: { name: "Gallon US (gal)", factor: 3.78541 },
-      barrel: { name: "Oil Barrel (bbl)", factor: 158.987 }
-    }
-  },
-  weight: {
-    label: "Berat",
-    units: {
-      kg: { name: "Kilogram (kg)", factor: 1 },
-      g: { name: "Gram (g)", factor: 0.001 },
-      ton: { name: "Metric Ton (t)", factor: 1000 },
-      lbs: { name: "Pound (lbs)", factor: 0.453592 },
-      oz: { name: "Ounce (oz)", factor: 0.0283495 }
-    }
-  },
-  pressure: {
-    label: "Tekanan",
-    units: {
-      bar: { name: "Bar (bar)", factor: 1 },
-      psi: { name: "PSI (psi)", factor: 0.0689476 },
-      pascal: { name: "Pascal (Pa)", factor: 0.00001 },
-      kpa: { name: "KiloPascal (kPa)", factor: 0.01 },
-      atm: { name: "Atmosphere (atm)", factor: 1.01325 }
-    }
-  },
-  temp: {
-    label: "Suhu",
-    units: {
-      c: { name: "Celsius (C)" },
-      f: { name: "Fahrenheit (F)" },
-      k: { name: "Kelvin (K)" },
-      r: { name: "Rankine (R)" }
-    }
-  },
-  density: {
-    label: "Densitas",
-    units: {
-      kg_m3: { name: "kg/m³", factor: 1 },
-      g_cm3: { name: "g/cm³", factor: 1000 },
-      lbs_ft3: { name: "lbs/ft³", factor: 16.0185 }
-    }
-  },
-  flow: {
-    label: "Debit",
-    units: {
-      m3_h: { name: "m³/hour", factor: 1 },
-      m3_s: { name: "m³/second", factor: 3600 },
-      l_min: { name: "L/min", factor: 0.06 },
-      gpm: { name: "Gallon/min (GPM)", factor: 0.227125 }
-    }
-  }
+  length: { label: "Panjang", units: { m: { name: "Meter (m)", factor: 1 }, km: { name: "Kilometer (km)", factor: 1000 }, cm: { name: "Centimeter (cm)", factor: 0.01 }, mm: { name: "Millimeter (mm)", factor: 0.001 }, ft: { name: "Feet (ft)", factor: 0.3048 }, inch: { name: "Inch (in)", factor: 0.0254 }, mile: { name: "Mile (mi)", factor: 1609.34 } } },
+  volume: { label: "Volume", units: { l: { name: "Liter (L)", factor: 1 }, ml: { name: "Milliliter (mL)", factor: 0.001 }, m3: { name: "Meter Kubik (m³)", factor: 1000 }, gal: { name: "Gallon US (gal)", factor: 3.78541 }, barrel: { name: "Oil Barrel (bbl)", factor: 158.987 } } },
+  weight: { label: "Berat", units: { kg: { name: "Kilogram (kg)", factor: 1 }, g: { name: "Gram (g)", factor: 0.001 }, ton: { name: "Metric Ton (t)", factor: 1000 }, lbs: { name: "Pound (lbs)", factor: 0.453592 }, oz: { name: "Ounce (oz)", factor: 0.0283495 } } },
+  pressure: { label: "Tekanan", units: { bar: { name: "Bar (bar)", factor: 1 }, psi: { name: "PSI (psi)", factor: 0.0689476 }, pascal: { name: "Pascal (Pa)", factor: 0.00001 }, kpa: { name: "KiloPascal (kPa)", factor: 0.01 }, atm: { name: "Atmosphere (atm)", factor: 1.01325 } } },
+  temp: { label: "Suhu", units: { c: { name: "Celsius (C)" }, f: { name: "Fahrenheit (F)" }, k: { name: "Kelvin (K)" }, r: { name: "Rankine (R)" } } },
+  density: { label: "Densitas", units: { kg_m3: { name: "kg/m³", factor: 1 }, g_cm3: { name: "g/cm³", factor: 1000 }, lbs_ft3: { name: "lbs/ft³", factor: 16.0185 } } },
+  flow: { label: "Debit", units: { m3_h: { name: "m³/hour", factor: 1 }, m3_s: { name: "m³/second", factor: 3600 }, l_min: { name: "L/min", factor: 0.06 }, gpm: { name: "Gallon/min (GPM)", factor: 0.227125 } } }
 };
 
 let currentCategory = 'length';
@@ -800,40 +775,35 @@ let currentCategory = 'length';
 function setUnitCategory(category) {
   currentCategory = category;
 
-  // Update Tampilan Tombol Tab Aktif
   Object.keys(unitData).forEach(cat => {
     const btn = document.getElementById(`btnCat-${cat}`);
     if (btn) {
       if (cat === category) {
         btn.className = 'px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-semibold shrink-0 transition-all';
       } else {
-        btn.className = 'px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all';
+        btn.className = 'px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold shrink-0 transition-all';
       }
     }
   });
 
-  // Isi Dropdown DARI & KE
   const fromSelect = document.getElementById('unitFromSelect');
   const toSelect = document.getElementById('unitToSelect');
-  
+  if (!fromSelect || !toSelect) return;
+
   fromSelect.innerHTML = '';
   toSelect.innerHTML = '';
 
   const units = unitData[category].units;
   const keys = Object.keys(units);
 
-  keys.forEach((key, index) => {
-    const optFrom = new Option(units[key].name, key);
-    const optTo = new Option(units[key].name, key);
-    fromSelect.add(optFrom);
-    toSelect.add(optTo);
+  keys.forEach((key) => {
+    fromSelect.add(new Option(units[key].name, key));
+    toSelect.add(new Option(units[key].name, key));
   });
 
-  // Default Pilihan Berbeda (Opsi 1 -> Opsi 2)
   if (keys.length > 1) {
     toSelect.selectedIndex = 1;
   }
-
   calculateDynamicUnit();
 }
 
@@ -849,23 +819,18 @@ function calculateDynamicUnit() {
   }
 
   let result = 0;
-
-  // Penanganan Khusus Suhu
   if (currentCategory === 'temp') {
     result = convertTemperature(valInput, fromUnit, toUnit);
   } else {
-    // Penanganan Satuan Standar via Faktor Konversi
     const fromFactor = unitData[currentCategory].units[fromUnit].factor;
     const toFactor = unitData[currentCategory].units[toUnit].factor;
     result = (valInput * fromFactor) / toFactor;
   }
 
   const formattedResult = Number.isInteger(result) ? result.toString() : result.toFixed(4);
-
   document.getElementById('unitToVal').value = formattedResult;
   document.getElementById('bigUnitResult').innerText = formattedResult;
 
-  // Tampilkan Rumus Ringkas di Bawah
   const fromName = unitData[currentCategory].units[fromUnit].name;
   const toName = unitData[currentCategory].units[toUnit].name;
   document.getElementById('unitFormulaText').innerText = `1 ${fromName} ≈ ${convertBaseUnit(1, fromUnit, toUnit)} ${toName}`;
@@ -873,13 +838,11 @@ function calculateDynamicUnit() {
 
 function convertTemperature(val, from, to) {
   let celsius = 0;
-  // Convert ke Celsius dulu
   if (from === 'c') celsius = val;
   else if (from === 'f') celsius = (val - 32) * 5/9;
   else if (from === 'k') celsius = val - 273.15;
   else if (from === 'r') celsius = (val - 491.67) * 5/9;
 
-  // Convert dari Celsius ke Target
   if (to === 'c') return celsius;
   if (to === 'f') return (celsius * 9/5) + 32;
   if (to === 'k') return celsius + 273.15;
@@ -896,52 +859,36 @@ function convertBaseUnit(val, from, to) {
 function swapUnits() {
   const fromSelect = document.getElementById('unitFromSelect');
   const toSelect = document.getElementById('unitToSelect');
-  
-  const temp = fromSelect.value;
-  fromSelect.value = toSelect.value;
-  toSelect.value = temp;
-
-  calculateDynamicUnit();
+  if (fromSelect && toSelect) {
+    const temp = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = temp;
+    calculateDynamicUnit();
+  }
 }
 
-// Inisialisasi Kategori Pertama saat Halaman Dimuat
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById('unitFromSelect')) {
-    setUnitCategory('length');
-  }
-});
-
 // ----------------------------------------------------
-// LOGIKA PWA & OFFLINE INSTALL (ND TOOLS)
+// 12. LOGIKA PWA & OFFLINE INSTALL
 // ----------------------------------------------------
 let deferredPrompt = null;
 
-// Tangkap event pemicu instalasi dari browser
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Cegah dialog bawaan browser agar tidak muncul mendadak
   e.preventDefault();
   deferredPrompt = e;
   console.log('[ND Tools] Event beforeinstallprompt berhasil ditangkap.');
 });
 
-// Fungsi yang dipanggil saat tombol "Install Aplikasi" diklik
 function installPWA() {
   if (deferredPrompt) {
-    // Tampilkan dialog install resmi browser
     deferredPrompt.prompt();
-    
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('[ND Tools] Pengguna menyetujui instalasi aplikasi.');
-      } else {
-        console.log('[ND Tools] Pengguna menolak instalasi.');
       }
       deferredPrompt = null;
     });
   } else {
-    // Petunjuk alternatif jika pemicu otomatis browser belum siap atau di HP/Safari
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
     if (isMobile) {
       showCustomModal(
         'Install ND Tools di HP',
@@ -962,9 +909,7 @@ function installPWA() {
   }
 }
 
-// Sembunyikan tombol jika aplikasi sudah berhasil terpasang di perangkat
 window.addEventListener('appinstalled', () => {
-  console.log('[ND Tools] Aplikasi berhasil terpasang sebagai PWA.');
   deferredPrompt = null;
   showCustomModal('Instalasi Selesai', 'ND Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
 });
