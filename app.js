@@ -868,60 +868,89 @@ function swapUnits() {
 }
 
 // ----------------------------------------------------
-// 12. LOGIKA PWA & OFFLINE INSTALL (ND TOOLS)
+// 12. LOGIKA PWA & CUSTOM INSTALL MODAL (ND TOOLS)
 // ----------------------------------------------------
 let deferredPrompt = null;
 
-// Registrasi Service Worker khusus scope sub-folder GitHub Pages
+// Registrasi Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
-      .then((reg) => {
-        console.log('[ND Tools] Service Worker registered with scope:', reg.scope);
-      })
-      .catch((err) => {
-        console.error('[ND Tools] Service Worker registration failed:', err);
-      });
+    navigator.serviceWorker.register('./sw.js?v=4', { scope: './' })
+      .then((reg) => console.log('[ND Tools] SW Registered:', reg.scope))
+      .catch((err) => console.error('[ND Tools] SW Failed:', err));
   });
 }
 
-// Tangkap event pemicu instalasi PWA dari browser
+// Tangkap pemicu bawaan browser
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  console.log('[ND Tools] PWA Siap Diinstall!');
-  
-  const installBtn = document.getElementById('installAppBtn');
-  if (installBtn) {
-    installBtn.classList.add('ring-2', 'ring-blue-400');
-  }
+  console.log('[ND Tools] Event PWA install siap.');
 });
 
-// Fungsi saat tombol "Install Aplikasi" diklik
+// Dipanggil saat tombol "Install Aplikasi" di Navbar diklik
 function installPWA() {
+  showPwaModal();
+}
+
+// Tampilkan Modal Kustom Install PWA
+function showPwaModal() {
+  const modal = document.getElementById('pwaInstallModal');
+  const card = document.getElementById('pwaInstallCard');
+
+  if (modal && card) {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      card.classList.remove('scale-95');
+      card.classList.add('scale-100');
+    }, 10);
+  }
+}
+
+// Tutup Modal Kustom Install PWA
+function closePwaModal() {
+  const modal = document.getElementById('pwaInstallModal');
+  const card = document.getElementById('pwaInstallCard');
+
+  if (modal && card) {
+    modal.classList.add('opacity-0');
+    card.classList.remove('scale-100');
+    card.classList.add('scale-95');
+
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 200);
+  }
+}
+
+// Jalankan proses instalasi resmi saat tombol "Install" di dalam Modal diklik
+function triggerPwaInstall() {
+  closePwaModal();
+
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('[ND Tools] User menyetujui instalasi PWA.');
+        console.log('[ND Tools] Pengguna menyetujui instalasi.');
       }
       deferredPrompt = null;
     });
   } else {
-    // Jika diklik sebelum browser siap, tampilkan petunjuk pemasangan kustom
+    // Fallback jika dibuka di browser HP/PC yang butuh langkah manual
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       showCustomModal(
-        'Install ND Tools di HP',
-        'Untuk menginstal aplikasi di HP:\n\n1. Ketuk menu titik tiga (Chrome) atau tombol Share (Safari).\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".',
+        'Install di HP',
+        'Untuk memasang aplikasi:\n1. Ketuk menu titik tiga (Chrome) / tombol Share (Safari).\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".',
         'Petunjuk Instalasi',
         'download-cloud',
         false
       );
     } else {
       showCustomModal(
-        'Install ND Tools di PC/Laptop',
-        'Untuk memasang ND Tools di Laptop/PC:\n\nPerhatikan bagian kanan atas Address Bar (URL browser Anda), lalu klik ikon Komputer/Download kecil untuk memasang aplikasi.',
+        'Install di Laptop/PC',
+        'Perhatikan bagian kanan atas Address Bar (URL browser Anda), lalu klik ikon Download/Komputer kecil di sana untuk menginstal ND Tools.',
         'Petunjuk Instalasi',
         'download-cloud',
         false
