@@ -483,31 +483,91 @@ function downloadQRCode() {
   }
 }
 
-// 2. QR CODE SCANNER
-let html5QrcodeScanner = null;
+// ----------------------------------------------------
+// LOGIKA QR CODE SCANNER (HYBRID & RIWAYAT)
+// ----------------------------------------------------
+let html5QrCodeInstance = null;
+let scanHistory = [];
 
-function startQRScanner() {
-  const readerEl = document.getElementById('reader');
-  if (!readerEl) return;
-
-  if (html5QrcodeScanner) {
-    try { html5QrcodeScanner.clear(); } catch (e) { console.log(e); }
+// Memulai Scanner Kamera secara Manual
+async function startQRScannerManual() {
+  const placeholder = document.getElementById('cameraPlaceholder');
+  
+  if (!html5QrCodeInstance) {
+    html5QrCodeInstance = new Html5Qrcode("reader");
   }
 
-  html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-    fps: 10,
-    qrbox: { width: 200, height: 200 },
-    aspectRatio: 1.0
-  }, false);
+  // Sembunyikan placeholder
+  if (placeholder) placeholder.classList.add('hidden');
 
-  html5QrcodeScanner.render(
-    (decodedText) => {
-      document.getElementById('scanResult').innerText = decodedText;
-    },
-    (error) => {}
-  );
+  try {
+    await html5QrCodeInstance.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 220, height: 220 } },
+      (decodedText) => {
+        handleQrSuccess(decodedText);
+      },
+      (errorMessage) => {
+        // Abaikan error render per frame
+      }
+    );
+  } catch (err) {
+    alert("Gagal mengakses kamera: " + err + "\n\nPastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.");
+    if (placeholder) placeholder.classList.remove('hidden');
+  }
 }
 
+// Memindai QR Code dari File Gambar yang Diunggah
+async function scanQrFromFile(file) {
+  if (!file) return;
+
+  if (!html5QrCodeInstance) {
+    html5QrCodeInstance = new Html5Qrcode("reader");
+  }
+
+  try {
+    const decodedText = await html5QrCodeInstance.scanFile(file, true);
+    handleQrSuccess(decodedText);
+  } catch (err) {
+    alert("Kode QR tidak terdeteksi pada gambar ini. Coba gunakan gambar yang lebih jelas.");
+  }
+}
+
+// Menangani Hasil Pindaian Berhasil & Menyimpan ke Riwayat
+function handleQrSuccess(text) {
+  // Tambahkan ke riwayat jika belum ada
+  if (!scanHistory.includes(text)) {
+    scanHistory.unshift(text);
+    renderScanHistory();
+  }
+
+  alert("Hasil QR Code:\n" + text);
+}
+
+// Render Tampilan Riwayat Pindaian
+function renderScanHistory() {
+  const container = document.getElementById('scanHistoryList');
+  if (!container) return;
+
+  if (scanHistory.length === 0) {
+    container.innerHTML = 'Belum ada riwayat.';
+    container.className = 'p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-400 dark:text-slate-500 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2';
+    return;
+  }
+
+  container.className = 'p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs text-slate-800 dark:text-slate-200 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2';
+  container.innerHTML = '';
+
+  scanHistory.forEach((item, index) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'p-2 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 break-all font-mono text-[11px] flex justify-between items-start gap-2';
+    itemEl.innerHTML = `
+      <span>${item}</span>
+      <button onclick="navigator.clipboard.writeText('${item}'); alert('Berhasil disalin!');" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-sans shrink-0 hover:underline">Salin</button>
+    `;
+    container.appendChild(itemEl);
+  });
+}
 // ----------------------------------------------------
 // LOGIKA STICKY NOTES MULTI-CARD (LOCALSTORAGE)
 // ----------------------------------------------------
