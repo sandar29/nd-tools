@@ -164,44 +164,117 @@
   <!-- KONTEN UTAMA (CONTAINER TAB) -->
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
     
-    <!-- DASHBOARD WELCOME TAB -->
-    <section id="dashboard" class="tab-content">
-      <div class="text-center max-w-3xl mx-auto py-12">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 mb-6">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 100% Aman & Client-Side (Tanpa Upload Server)
-        </span>
-        <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight mb-4">
-          Kelola PDF & Utilitas Kerja Langsung dari Browser
-        </h1>
-        <p class="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
-          Proses dokumen Anda tanpa batasan. Semua pengolahan dilakukan secara lokal di perangkat Anda sehingga privasi tetap terjaga.
-        </p>
+    <!-- DASHBOARD / BERANDA UTAMA -->
+<section id="dashboard" class="tab-content">
+  <div class="max-w-6xl mx-auto py-8 sm:py-12 px-4 space-y-12">
+    
+    <!-- Hero Section -->
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 100% Client-Side & Bebas Pengunggahan Server
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+        Kelola Dokumen & Alat Kerja Langsung di Browser
+      </h1>
+      <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+        Pengolahan dilakukan secara lokal di perangkat Anda tanpa batasan jaringan, aman, serta menjamin privasi berkas penuh.
+      </p>
+    </div>
 
-        <!-- Quick Access Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-left mt-8">
-          <div onclick="showTab('merge-pdf')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
-            <i data-lucide="layers" class="w-6 h-6 text-blue-500 mb-2"></i>
-            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Merge PDF</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Gabungkan PDF</p>
+    <!-- Kategori 1: Pengolahan Dokumen PDF -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-5 bg-blue-600 rounded-full"></div>
+        <h2 class="text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-xs">Dokumen PDF</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Merge PDF -->
+        <div onclick="showTab('merge-pdf')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-blue-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="layers" class="w-5 h-5"></i>
           </div>
-          <div onclick="showTab('split-pdf')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
-            <i data-lucide="scissors" class="w-6 h-6 text-emerald-500 mb-2"></i>
-            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Split PDF</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pisahkan halaman</p>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Merge PDF</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Gabungkan beberapa berkas PDF menjadi satu dokumen urut.</p>
+        </div>
+
+        <!-- Split PDF -->
+        <div onclick="showTab('split-pdf')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-emerald-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="scissors" class="w-5 h-5"></i>
           </div>
-          <div onclick="showTab('qr-gen')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
-            <i data-lucide="qr-code" class="w-6 h-6 text-cyan-500 mb-2"></i>
-            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">QR Code</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Buat kode QR</p>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Split PDF</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Ekstrak atau pisahkan halaman tertentu dengan visual preview.</p>
+        </div>
+
+        <!-- Compress PDF -->
+        <div onclick="showTab('compress-pdf')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-amber-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl border border-amber-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="file-archive" class="w-5 h-5"></i>
           </div>
-          <div onclick="showTab('sticky-notes')" class="p-4 bg-white dark:bg-slate-800/60 hover:bg-slate-100/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1">
-            <i data-lucide="sticky-note" class="w-6 h-6 text-yellow-500 mb-2"></i>
-            <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Sticky Notes</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Catatan lokal</p>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Compress PDF</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Kecilkan ukuran berkas PDF untuk menghemat memori.</p>
+        </div>
+
+        <!-- Gambar ke PDF -->
+        <div onclick="showTab('img-to-pdf')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-pink-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-pink-500/10 text-pink-600 dark:text-pink-400 rounded-xl border border-pink-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="camera" class="w-5 h-5"></i>
           </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Gambar ke PDF</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Ubah foto dari galeri atau jepretan kamera langsung ke PDF.</p>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- Kategori 2: Utilitas Kerja -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-5 bg-indigo-600 rounded-full"></div>
+        <h2 class="text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-xs">Utilitas & Produktivitas</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- QR Generator -->
+        <div onclick="showTab('qr-gen')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-cyan-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 rounded-xl border border-cyan-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">QR Generator</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Buat kode QR kustom dari tautan atau teks secara instan.</p>
+        </div>
+
+        <!-- QR Scanner -->
+        <div onclick="showTab('qr-scan')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-indigo-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="scan" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">QR Scanner</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Pindai kode QR dari kamera langsung atau dari file gambar.</p>
+        </div>
+
+        <!-- Sticky Notes -->
+        <div onclick="showTab('sticky-notes')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-yellow-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-xl border border-yellow-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="sticky-note" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Sticky Notes</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Catatan multi-kartu dengan autosave lokal browser.</p>
+        </div>
+
+        <!-- Konversi Satuan -->
+        <div onclick="showTab('unit-convert')" class="p-5 bg-white dark:bg-slate-800/60 hover:bg-rose-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl cursor-pointer transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group">
+          <div class="p-3 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-xl border border-rose-500/20 w-fit mb-3 group-hover:scale-105 transition-transform">
+            <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">Konversi Satuan</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Kalkulator konversi dinamis panjang, volume, berat, suhu, dll.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
 
     <!-- 1. MERGE PDF -->
     <section id="merge-pdf" class="tab-content hidden">
