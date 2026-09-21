@@ -912,49 +912,59 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ----------------------------------------------------
-// LOGIKA PWA & OFFLINE INSTALL
+// LOGIKA PWA & OFFLINE INSTALL (ND TOOLS)
 // ----------------------------------------------------
-let deferredPrompt;
+let deferredPrompt = null;
 
-// Registrasi Service Worker saat halaman dimuat
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then((reg) => console.log('Service Worker Terdaftar:', reg.scope))
-      .catch((err) => console.error('Registrasi Service Worker Gagal:', err));
-  });
-}
-
-// Tangkap event PWA install dari browser
+// Tangkap event pemicu instalasi dari browser
 window.addEventListener('beforeinstallprompt', (e) => {
+  // Cegah dialog bawaan browser agar tidak muncul mendadak
   e.preventDefault();
   deferredPrompt = e;
-
-  // Tampilkan tombol "Install Aplikasi" di navbar
-  const installBtn = document.getElementById('installAppBtn');
-  if (installBtn) {
-    installBtn.classList.remove('hidden');
-  }
+  console.log('[ND Tools] Event beforeinstallprompt berhasil ditangkap.');
 });
 
 // Fungsi yang dipanggil saat tombol "Install Aplikasi" diklik
 function installPWA() {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === 'accepted') {
-      console.log('Pengguna menyetujui install aplikasi');
-      const installBtn = document.getElementById('installAppBtn');
-      if (installBtn) installBtn.classList.add('hidden');
+  if (deferredPrompt) {
+    // Tampilkan dialog install resmi browser
+    deferredPrompt.prompt();
+    
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('[ND Tools] Pengguna menyetujui instalasi aplikasi.');
+      } else {
+        console.log('[ND Tools] Pengguna menolak instalasi.');
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    // Petunjuk alternatif jika pemicu otomatis browser belum siap atau di HP/Safari
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      showCustomModal(
+        'Install ND Tools di HP',
+        'Untuk menginstal aplikasi di perangkat seluler:\n\n1. Ketuk ikon Menu (titik tiga di kanan atas Chrome, atau tombol Share di Safari).\n2. Pilih "Tambahkan ke Layar Utama" / "Install Aplikasi".',
+        'Petunjuk Instalasi',
+        'download-cloud',
+        false
+      );
+    } else {
+      showCustomModal(
+        'Install ND Tools di Laptop/PC',
+        'Untuk memasang aplikasi ini di Desktop:\n\n1. Perhatikan bagian kanan atas Address Bar (bilah alamat URL) browser Anda.\n2. Klik ikon Download/Komputer dengan panah bawah (Install ND Tools).\n3. Klik "Install".',
+        'Petunjuk Instalasi',
+        'download-cloud',
+        false
+      );
     }
-    deferredPrompt = null;
-  });
+  }
 }
 
-// Sembunyikan tombol jika aplikasi sudah berhasil ter-install
+// Sembunyikan tombol jika aplikasi sudah berhasil terpasang di perangkat
 window.addEventListener('appinstalled', () => {
-  console.log('Aplikasi PDF Studio Pro telah terpasang');
-  const installBtn = document.getElementById('installAppBtn');
-  if (installBtn) installBtn.classList.add('hidden');
+  console.log('[ND Tools] Aplikasi berhasil terpasang sebagai PWA.');
+  deferredPrompt = null;
+  showCustomModal('Instalasi Selesai', 'ND Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
 });
