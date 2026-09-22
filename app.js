@@ -952,7 +952,7 @@ function swapUnits() {
 }
 
 // ----------------------------------------------------
-// 12. LOGIKA PWA & CUSTOM INSTALL MODAL (ND TOOLS)
+// 12. LOGIKA PWA & CUSTOM INSTALL MODAL (SN TOOLS)
 // ----------------------------------------------------
 let deferredPrompt = null;
 
@@ -965,6 +965,11 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Cek status aplikasi saat pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  checkIfAppIsInstalled();
+});
+
 // Tangkap pemicu bawaan browser
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -974,6 +979,11 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 // Dipanggil saat tombol "Install Aplikasi" di Navbar diklik
 function installPWA() {
+  // Jika aplikasi sudah dalam posisi terpasang, cegah modal instalasi muncul
+  if (isAppInstalled()) {
+    setOfflineReadyUI();
+    return;
+  }
   showPwaModal();
 }
 
@@ -981,7 +991,6 @@ function installPWA() {
 function showPwaModal() {
   const modal = document.getElementById('pwaInstallModal');
   const card = document.getElementById('pwaInstallCard');
-
   if (modal && card) {
     modal.classList.remove('hidden');
     setTimeout(() => {
@@ -996,12 +1005,10 @@ function showPwaModal() {
 function closePwaModal() {
   const modal = document.getElementById('pwaInstallModal');
   const card = document.getElementById('pwaInstallCard');
-
   if (modal && card) {
     modal.classList.add('opacity-0');
     card.classList.remove('scale-100');
     card.classList.add('scale-95');
-
     setTimeout(() => {
       modal.classList.add('hidden');
     }, 200);
@@ -1011,12 +1018,12 @@ function closePwaModal() {
 // Jalankan proses instalasi resmi saat tombol "Install" di dalam Modal diklik
 function triggerPwaInstall() {
   closePwaModal();
-
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('[SN Tools] Pengguna menyetujui instalasi.');
+        setOfflineReadyUI();
       }
       deferredPrompt = null;
     });
@@ -1043,7 +1050,41 @@ function triggerPwaInstall() {
   }
 }
 
+// Event ketika instalasi selesai dilakukan
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
+  setOfflineReadyUI();
   showCustomModal('Instalasi Selesai', 'SN Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
 });
+
+// Fungsi pembantu untuk mendeteksi apakah aplikasi dibuka dalam mode terpasang (Standalone / App)
+function isAppInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function checkIfAppIsInstalled() {
+  if (isAppInstalled()) {
+    setOfflineReadyUI();
+  }
+}
+
+// Fungsi merubah tampilan tombol Navbar menjadi "Offline - Ready"
+function setOfflineReadyUI() {
+  // Mencari tombol berdasarkan onclick="installPWA()" atau ID elemen jika ada
+  const installButtons = document.querySelectorAll('[onclick="installPWA()"]');
+  
+  installButtons.forEach((btn) => {
+    btn.innerHTML = `
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+      <span class="text-xs font-medium text-slate-200">Offline - Ready</span>
+    `;
+    btn.onclick = null; // Menghapus event click instalasi
+    btn.disabled = true;
+    btn.classList.remove('hover:bg-slate-700', 'cursor-pointer');
+    btn.classList.add('cursor-default', 'opacity-90');
+  });
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
