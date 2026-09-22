@@ -965,7 +965,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Cek status aplikasi saat pertama kali dimuat
+// Cek status saat halaman pertama kali dimuat
 document.addEventListener('DOMContentLoaded', () => {
   checkIfAppIsInstalled();
 });
@@ -974,12 +974,10 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  console.log('[SN Tools] Event PWA install siap.');
 });
 
-// Dipanggil saat tombol "Install Aplikasi" di Navbar diklik
+// Dipanggil saat tombol di Navbar diklik
 function installPWA() {
-  // Jika aplikasi sudah dalam posisi terpasang, cegah modal instalasi muncul
   if (isAppInstalled()) {
     setOfflineReadyUI();
     return;
@@ -987,7 +985,6 @@ function installPWA() {
   showPwaModal();
 }
 
-// Tampilkan Modal Kustom Install PWA
 function showPwaModal() {
   const modal = document.getElementById('pwaInstallModal');
   const card = document.getElementById('pwaInstallCard');
@@ -1001,7 +998,6 @@ function showPwaModal() {
   }
 }
 
-// Tutup Modal Kustom Install PWA
 function closePwaModal() {
   const modal = document.getElementById('pwaInstallModal');
   const card = document.getElementById('pwaInstallCard');
@@ -1015,20 +1011,20 @@ function closePwaModal() {
   }
 }
 
-// Jalankan proses instalasi resmi saat tombol "Install" di dalam Modal diklik
+// Trigger Instalasi
 function triggerPwaInstall() {
   closePwaModal();
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('[SN Tools] Pengguna menyetujui instalasi.');
+        localStorage.setItem('pwa_installed', 'true');
         setOfflineReadyUI();
       }
       deferredPrompt = null;
     });
   } else {
-    // Fallback jika dibuka di browser HP/PC yang butuh langkah manual
+    // Fallback jika dibuka via HP / Desktop manual
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       showCustomModal(
@@ -1050,16 +1046,19 @@ function triggerPwaInstall() {
   }
 }
 
-// Event ketika instalasi selesai dilakukan
+// Event bawaan browser saat berhasil diinstall
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
+  localStorage.setItem('pwa_installed', 'true');
   setOfflineReadyUI();
   showCustomModal('Instalasi Selesai', 'SN Tools berhasil terpasang di perangkat Anda dan siap digunakan secara offline!', 'PWA Installed', 'check-circle-2', false);
 });
 
-// Fungsi pembantu untuk mendeteksi apakah aplikasi dibuka dalam mode terpasang (Standalone / App)
+// Pengecekan ganda: lewat Display Mode Standalone ATAU LocalStorage
 function isAppInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isSavedInstalled = localStorage.getItem('pwa_installed') === 'true';
+  return isStandalone || isSavedInstalled;
 }
 
 function checkIfAppIsInstalled() {
@@ -1068,23 +1067,23 @@ function checkIfAppIsInstalled() {
   }
 }
 
-// Fungsi merubah tampilan tombol Navbar menjadi "Offline - Ready"
+// Fungsi mengubah UI tombol (Menyesuaikan id="installAppBtn" milikmu)
 function setOfflineReadyUI() {
-  // Mencari tombol berdasarkan onclick="installPWA()" atau ID elemen jika ada
-  const installButtons = document.querySelectorAll('[onclick="installPWA()"]');
+  const installBtn = document.getElementById('installAppBtn') || document.getElementById('pwaInstallBtn') || document.querySelector('[onclick="installPWA()"]');
   
-  installButtons.forEach((btn) => {
-    btn.innerHTML = `
-      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-      <span class="text-xs font-medium text-slate-200">Offline - Ready</span>
+  if (installBtn) {
+    installBtn.innerHTML = `
+      <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+      <span>Offline - Ready</span>
     `;
-    btn.onclick = null; // Menghapus event click instalasi
-    btn.disabled = true;
-    btn.classList.remove('hover:bg-slate-700', 'cursor-pointer');
-    btn.classList.add('cursor-default', 'opacity-90');
-  });
-
-  if (window.lucide) {
-    lucide.createIcons();
+    installBtn.removeAttribute('onclick');
+    installBtn.onclick = null;
+    installBtn.disabled = true;
+    installBtn.classList.remove('hover:bg-ink-800', 'dark:hover:bg-paper-100', 'cursor-pointer');
+    installBtn.classList.add('cursor-default', 'opacity-90');
+    
+    if (window.lucide) {
+      lucide.createIcons();
+    }
   }
 }
