@@ -559,81 +559,165 @@ let html5QrCodeInstance = null;
 let scanHistory = [];
 
 async function startQRScannerManual() {
-  const placeholder = document.getElementById('cameraPlaceholder');
+    const placeholder = document.getElementById('cameraPlaceholder');
 
-  if (!html5QrCodeInstance) {
-    html5QrCodeInstance = new Html5Qrcode("reader");
-  }
+    if (!html5QrCodeInstance) {
+        html5QrCodeInstance = new Html5Qrcode("reader");
+    }
 
-  if (placeholder) placeholder.classList.add('hidden');
+    // Jangan start ulang kalau kamera sudah jalan
+    if (html5QrCodeInstance.isScanning) return;
 
-  try {
-    await html5QrCodeInstance.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      (decodedText) => {
-        handleQrSuccess(decodedText);
-      },
-      (errorMessage) => {
-        // Abaikan error per frame
-      }
-    );
-  } catch (err) {
-    showCustomModal('Gagal Mengakses Kamera', 'Pastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.', err.message || err, 'camera-off', false);
-    if (placeholder) placeholder.classList.remove('hidden');
-  }
+    if (placeholder) placeholder.classList.add('hidden');
+
+    try {
+        await html5QrCodeInstance.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 220, height: 220 } },
+            (decodedText) => {
+                handleQrSuccess(decodedText);
+            },
+            (errorMessage) => {
+                // Abaikan error per frame
+            }
+        );
+    } catch (err) {
+        showCustomModal('Gagal Mengakses Kamera', 'Pastikan izin kamera diizinkan atau gunakan fitur Unggah Gambar.', err.message || err, 'camera-off', false);
+        if (placeholder) placeholder.classList.remove('hidden');
+    }
 }
 
 async function scanQrFromFile(file) {
-  if (!file) return;
+    if (!file) return;
+    const placeholder = document.getElementById('cameraPlaceholder');
+    const readerEl = document.getElementById('reader');
 
-  if (!html5QrCodeInstance) {
-    html5QrCodeInstance = new Html5Qrcode("reader");
-  }
+    // 1. Langsung sembunyikan placeholder & bersihkan reader sebelum diproses
+    if (placeholder) placeholder.classList.add('hidden');
+    if (readerEl) readerEl.innerHTML = '';
 
-  try {
-    const decodedText = await html5QrCodeInstance.scanFile(file, true);
-    handleQrSuccess(decodedText);
-  } catch (err) {
-    showCustomModal('QR Tidak Terdeteksi', 'Kode QR tidak terdeteksi pada gambar ini. Coba gunakan gambar yang lebih jelas.', 'Gagal Membaca File', 'alert-circle', false);
-  }
+    if (!html5QrCodeInstance) {
+        html5QrCodeInstance = new Html5Qrcode("reader");
+    } else {
+        try {
+            if (html5QrCodeInstance.isScanning) {
+                await html5QrCodeInstance.stop();
+            }
+        } catch (e) {
+            console.warn("Reset scanner status:", e);
+        }
+    }
+
+    try {
+        // 2. Scan file dengan batas pembacaan diperluas
+        const decodedText = await html5QrCodeInstance.scanFileV2(file, true)
+            .then(res => res.decodedText)
+            .catch(async () => {
+                // Fallback jika mode v2 gagal: gunakan scanFile standar
+                return await html5QrCodeInstance.scanFile(file, true);
+            });
+
+        // 3. Pastikan placeholder tetap tersembunyi
+        if (placeholder) placeholder.classList.add('hidden');
+
+        // 4. Atur gaya gambar pratinjau agar simetris & presisi di tengah
+        const previewImg = document.querySelector('#reader img');
+        if (previewImg) {
+            previewImg.style.maxHeight = '300px';
+            previewImg.style.maxWidth = '100%';
+            previewImg.style.width = 'auto';
+            previewImg.style.margin = '0 auto';
+            previewImg.style.borderRadius = '12px';
+            previewImg.style.objectFit = 'contain';
+            previewImg.style.display = 'block';
+            previewImg.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.4)';
+        }
+
+        handleQrSuccess(decodedText);
+
+    } catch (err) {
+        // 5. Jika gagal total: bersihkan sisa kanvas lalu kembalikan placeholder
+        if (readerEl) readerEl.innerHTML = '';
+        if (placeholder) placeholder.classList.remove('hidden');
+        showCustomModal(
+            'QR Tidak Terdeteksi',
+            'Kode QR tidak terdeteksi pada gambar ini. Coba potong (crop) bagian kode QR saja atau gunakan gambar yang lebih jelas.',
+            'Gagal Membaca File',
+            'alert-circle',
+            false
+        );
+    }
 }
 
-function handleQrSuccess(text) {
-  if (!scanHistory.includes(text)) {
-    scanHistory.unshift(text);
+async function handleQrSuccess(decodedText) {
+    // Hentikan kamera setelah berhasil, supaya tidak looping terus memanggil callback
+    if (html5QrCodeInstance && html5QrCodeInstance.isScanning) {
+        try {
+            await html5QrCodeInstance.stop();
+        } catch (e) {
+            console.warn('Gagal menghentikan scanner:', e);
+        }
+    }
+
+    // Simpan ke riwayat
+    scanHistory.unshift({
+        id: Date.now(),
+        text: decodedText,
+        date: getFormattedDate()
+    });
+    saveScanHistory();
     renderScanHistory();
-  }
-  showCustomModal('Hasil QR Code', text, 'Kode QR berhasil dipindai', 'qr-code', true);
+
+    // Tampilkan hasil ke modal
+    showCustomModal('Hasil Pindaian QR', decodedText, 'Kode QR berhasil dibaca', 'check-circle-2', true);
+}
+
+function saveScanHistory() {
+    localStorage.setItem('app_qr_scan_history', JSON.stringify(scanHistory));
+}
+
+function loadScanHistory() {
+    const saved = localStorage.getItem('app_qr_scan_history');
+    if (saved) {
+        try { scanHistory = JSON.parse(saved); } catch (e) { scanHistory = []; }
+    }
+    renderScanHistory();
 }
 
 function renderScanHistory() {
-  const container = document.getElementById('scanHistoryList');
-  if (!container) return;
-
-  if (scanHistory.length === 0) {
-    container.innerHTML = 'Belum ada riwayat.';
-    container.className = 'p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-400 dark:text-slate-500 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2';
-    return;
-  }
-
-  container.className = 'p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-xs text-slate-800 dark:text-slate-200 min-h-[100px] max-h-[180px] overflow-y-auto space-y-2';
-  container.innerHTML = '';
-
-  scanHistory.forEach((item) => {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'p-2 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 break-all font-mono text-[11px] flex justify-between items-start gap-2';
-    itemEl.innerHTML = `
-      <span>${item}</span>
-      <button onclick="copyToClipboard('${item}')" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-sans shrink-0 hover:underline">Salin</button>
-    `;
-    container.appendChild(itemEl);
-  });
+    const container = document.getElementById('scanHistoryList');
+    if (!container) return;
+    container.innerHTML = '';
+    if (scanHistory.length === 0) {
+        container.innerHTML = '<div class="text-center text-xs text-slate-400 dark:text-slate-500 py-2">Belum ada riwayat.</div>';
+        return;
+    }
+    scanHistory.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'flex items-center justify-between gap-2 p-2.5 bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700/50 text-left';
+        el.innerHTML = `
+            <div class="truncate flex-1">
+                <div class="truncate text-xs font-medium text-slate-800 dark:text-slate-200">${item.text}</div>
+                <div class="text-[10px] text-slate-400">${item.date}</div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+                <button onclick="event.stopPropagation(); navigator.clipboard.writeText(this.dataset.txt)" data-txt="${item.text.replace(/"/g, '&quot;')}" class="text-slate-500 hover:text-indigo-500 p-1">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="event.stopPropagation(); deleteScanHistoryItem(${item.id})" class="text-rose-500 hover:text-rose-400 p-1">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(el);
+    });
+    if (window.lucide) lucide.createIcons();
 }
 
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text);
-  showCustomModal('Teks Disalin', text, 'Teks berhasil disalin ke clipboard', 'check', false);
+function deleteScanHistoryItem(id) {
+    scanHistory = scanHistory.filter(item => item.id !== id);
+    saveScanHistory();
+    renderScanHistory();
 }
 
 // ----------------------------------------------------
