@@ -1,31 +1,133 @@
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ==========================================================
+   SN Tools — Design tokens & base
+   ========================================================== */
+
+:root {
+  --ink-950: #0B1220;
+  --paper-50: #FBFAF7;
+  --signal-500: #D98A22;
+  --blueprint-600: #2E5AAC;
+  color-scheme: light;
 }
-::-webkit-scrollbar-track {
-  background: #0f172a;
+html.dark { color-scheme: dark; }
+
+::selection {
+  background-color: rgba(217, 138, 34, 0.28);
+  color: inherit;
 }
+
+body {
+  font-feature-settings: "ss01" on;
+}
+
+/* ==========================================================
+   Scrollbar
+   ========================================================== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: rgba(148, 152, 166, 0.45);
   border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 152, 166, 0.7); }
 
-/* Drag & Drop Highlight */
-.drag-active {
-  border-color: #3b82f6 !important;
-  background-color: rgba(59, 130, 246, 0.05) !important;
-}
-
-/* Smooth Transitions */
-.tab-content {
-  animation: fadeIn 0.2s ease-in-out;
-}
-
+/* ==========================================================
+   Tab transitions
+   ========================================================== */
+.tab-content { animation: fadeIn 0.22s ease-out; }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab-content { animation: none; }
+}
+
+/* ==========================================================
+   Hero — blueprint grid backdrop (subject-grounded decoration)
+   ========================================================== */
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(46, 90, 172, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(46, 90, 172, 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+html.dark .blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(94, 134, 201, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(94, 134, 201, 0.14) 1px, transparent 1px);
+}
+
+/* ==========================================================
+   Dropzones
+   ========================================================== */
+.drag-active {
+  border-color: var(--blueprint-600) !important;
+  background-color: rgba(46, 90, 172, 0.06) !important;
+}
+
+/* ==========================================================
+   Split PDF — thumbnail selection with checkmark badge
+   ========================================================== */
+.page-thumb { position: relative; }
+.page-thumb .thumb-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blueprint-600);
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.page-thumb.is-selected .thumb-check {
+  opacity: 1;
+  transform: scale(1);
+}
+.page-thumb .thumb-check svg { width: 12px; height: 12px; stroke-width: 3; }
+
+/* ==========================================================
+   QR camera viewport
+   ========================================================== */
+#cameraPlaceholder.hidden { display: none !important; }
+
+#reader {
+  min-height: 280px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  inset: 0;
+}
+#cameraPlaceholder { position: relative; z-index: 10; }
+#reader img { position: relative !important; z-index: 20 !important; border-radius: 12px; }
+#reader video { border-radius: 12px; }
+
+/* ==========================================================
+   Sticky notes — index card style
+   ========================================================== */
+.note-card {
+  position: relative;
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+.note-card textarea::placeholder { opacity: 0.55; }
+
+/* ==========================================================
+   Focus visibility (accessibility floor)
+   ========================================================== */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--signal-500);
+  outline-offset: 2px;
 }
