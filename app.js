@@ -995,6 +995,7 @@ function showPwaModal() {
       card.classList.remove('scale-95');
       card.classList.add('scale-100');
     }, 10);
+    if (window.lucide) lucide.createIcons();
   }
 }
 
