@@ -760,5 +760,51 @@
       });
     }
   </script>
+
+<!-- Modal Custom PWA Install -->
+<div id="pwaInstallModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+  <div id="pwaInstallCard" class="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-transform duration-200 relative overflow-hidden">
+    <!-- Aksen Hiasan Glowing Background -->
+    <div class="absolute -top-12 -right-12 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center shrink-0 shadow-inner overflow-hidden">
+        <img src="icon-192.png" alt="SN Tools Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="hidden font-mono font-bold text-amber-500 text-base">SN</span>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-100">Pasang Aplikasi SN Tools</h3>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+          Nikmati akses cepat langsung dari desktop/HP dan gunakan semua fitur analisis dokumen & utilitas secara <span class="text-emerald-400 font-medium">offline</span>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Keunggulan Singkat -->
+    <div class="mt-4 py-2.5 px-3 bg-slate-950/60 rounded-xl border border-slate-800/80 space-y-1.5 text-xs text-slate-300">
+      <div class="flex items-center gap-2">
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+        <span>Akses instan tanpa perlu buka browser</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="wifi-off" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+        <span>Siap digunakan 100% offline</span>
+      </div>
+    </div>
+
+    <!-- Tombol Aksi -->
+    <div class="mt-6 flex items-center justify-end gap-2.5">
+      <button onclick="closePwaModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors">
+        Nanti Saja
+      </button>
+      <button onclick="triggerPwaInstall()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>Pasang Sekarang</span>
+      </button>
+    </div>
+  </div>
+</div>
+  
 </body>
 </html>
